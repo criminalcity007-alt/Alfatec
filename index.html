@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Casa Interativa - Sistema de Salvamento</title>
+    <title>Casa Interativa - Sistema Completo</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body { width: 100%; height: 100%; overflow: hidden; position: fixed; top: 0; left: 0; }
@@ -29,29 +29,70 @@
         .barra-dinheiro { position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: #ffd700; padding: 10px 18px; border-radius: 25px; font-weight: bold; font-size: 1.1rem; z-index: 200; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 2px solid #ffd700; backdrop-filter: blur(10px); }
         .barra-data { position: fixed; top: 90px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 8px 15px; border-radius: 25px; font-weight: bold; font-size: 0.8rem; z-index: 200; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
 
-        /* Botão de Salvar */
-        .btn-salvar {
-            position: fixed; bottom: 20px; right: 20px; background: #27ae60; color: white;
-            border: none; padding: 10px 16px; border-radius: 25px; font-weight: bold;
-            cursor: pointer; z-index: 200; font-size: 0.85rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.2s;
-            display: flex; align-items: center; gap: 6px;
-        }
+        .btn-salvar { position: fixed; bottom: 20px; right: 20px; background: #27ae60; color: white; border: none; padding: 10px 16px; border-radius: 25px; font-weight: bold; cursor: pointer; z-index: 200; font-size: 0.85rem; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.2s; display: flex; align-items: center; gap: 6px; }
         .btn-salvar:hover { background: #219a52; transform: scale(1.05); }
         .btn-salvar:active { transform: scale(0.95); }
-        .btn-salvar.salvando { background: #f39c12; }
-
-        /* Indicador de salvamento */
-        .indicador-salvamento {
-            position: fixed; bottom: 70px; right: 20px;
-            background: rgba(0,0,0,0.8); color: #2ecc71; padding: 8px 15px;
-            border-radius: 20px; font-size: 0.75rem; font-weight: bold;
-            z-index: 200; opacity: 0; transition: opacity 0.3s;
-            pointer-events: none;
-        }
+        .indicador-salvamento { position: fixed; bottom: 70px; right: 20px; background: rgba(0,0,0,0.8); color: #2ecc71; padding: 8px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; z-index: 200; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .indicador-salvamento.visivel { opacity: 1; }
 
         .container-fullscreen { width: 100vw; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; padding: 10px; gap: 10px; }
+
+        .modal-prisao { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 700; justify-content: center; align-items: center; }
+        .modal-prisao.ativo { display: flex; }
+        .prisao-container { text-align: center; color: white; padding: 30px; }
+        .prisao-icone { font-size: 6rem; margin-bottom: 20px; animation: shake 0.5s infinite; }
+        @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+        .prisao-titulo { font-size: 2rem; font-weight: bold; color: #e74c3c; margin-bottom: 10px; }
+        .prisao-mensagem { font-size: 1.1rem; margin-bottom: 20px; color: #ccc; }
+        .prisao-tempo { font-size: 2.5rem; font-weight: bold; color: #f39c12; margin-bottom: 20px; }
+        .prisao-progresso { width: 250px; height: 15px; background: #444; border-radius: 10px; overflow: hidden; margin: 20px auto; }
+        .prisao-barra { height: 100%; background: #e74c3c; border-radius: 10px; transition: width 1s linear; }
+
+        .modal-faccao { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 500; justify-content: center; align-items: center; }
+        .modal-faccao.ativo { display: flex; }
+        .faccao-container { background: #1a1a1a; border-radius: 20px; padding: 20px; width: 90%; max-width: 380px; max-height: 80vh; overflow-y: auto; border: 2px solid #8b0000; }
+        .faccao-header { background: #111; color: #ff4444; padding: 15px; border-radius: 15px 15px 0 0; text-align: center; font-weight: bold; font-size: 1.2rem; margin: -20px -20px 15px -20px; border-bottom: 2px solid #8b0000; }
+        .faccao-card { background: #222; border: 2px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 12px; transition: 0.2s; cursor: pointer; }
+        .faccao-card:hover { border-color: #ff4444; }
+        .faccao-card.selecionada { border-color: #27ae60; background: #1a2a1a; }
+        .faccao-card.bloqueada { opacity: 0.5; cursor: not-allowed; }
+        .faccao-nome { font-weight: bold; font-size: 1.1rem; color: #ff4444; margin-bottom: 5px; }
+        .faccao-descricao { font-size: 0.8rem; color: #888; margin-bottom: 8px; }
+        .faccao-preco { font-size: 0.9rem; color: #f39c12; font-weight: bold; }
+        .faccao-limite { font-size: 0.75rem; color: #e74c3c; margin-top: 3px; }
+        .faccao-status { font-size: 0.8rem; margin-top: 5px; }
+        .btn-entrar-faccao { background: #8b0000; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; font-size: 0.9rem; }
+        .btn-entrar-faccao:disabled { background: #555; cursor: not-allowed; }
+        .faccao-icone { font-size: 3rem; text-align: center; margin-bottom: 10px; }
+        .btn-fechar-faccao { width: 100%; background: #555; color: white; border: none; padding: 12px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+        .modal-mercado { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 500; justify-content: center; align-items: center; }
+        .modal-mercado.ativo { display: flex; }
+        .mercado-container { background: #1a1a1a; border-radius: 20px; padding: 20px; width: 90%; max-width: 380px; max-height: 80vh; overflow-y: auto; border: 2px solid #2e7d32; }
+        .mercado-header { background: #111; color: #2e7d32; padding: 15px; border-radius: 15px 15px 0 0; text-align: center; font-weight: bold; font-size: 1.2rem; margin: -20px -20px 15px -20px; border-bottom: 2px solid #2e7d32; }
+        .mercado-stats { display: flex; justify-content: space-around; margin-bottom: 15px; background: #222; border-radius: 15px; padding: 10px; }
+        .mercado-stat { text-align: center; color: #2e7d32; }
+        .mercado-stat-valor { font-size: 1.2rem; font-weight: bold; } .mercado-stat-label { font-size: 0.7rem; color: #888; }
+        
+        .erva-card { background: #222; border: 2px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 12px; transition: 0.2s; }
+        .erva-card:hover { border-color: #2e7d32; }
+        .erva-nome { font-weight: bold; font-size: 1rem; color: #2e7d32; margin-bottom: 5px; }
+        .erva-descricao { font-size: 0.75rem; color: #888; margin-bottom: 8px; }
+        .erva-precos { display: flex; justify-content: space-between; align-items: center; }
+        .erva-compra { font-size: 0.9rem; color: #e74c3c; } .erva-venda { font-size: 0.9rem; color: #27ae60; }
+        .erva-quantidade { font-size: 0.8rem; color: #f39c12; }
+        .erva-limite { font-size: 0.7rem; color: #e74c3c; margin-top: 5px; font-weight: bold; }
+        .erva-botoes { display: flex; gap: 8px; margin-top: 10px; }
+        .btn-comprar-erva { flex: 1; background: #2e7d32; color: white; border: none; padding: 10px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+        .btn-comprar-erva:disabled { background: #555; cursor: not-allowed; }
+        .btn-vender-erva { flex: 1; background: #c62828; color: white; border: none; padding: 10px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+        .btn-vender-erva:disabled { background: #555; cursor: not-allowed; }
+
+        .btn-fechar-mercado { width: 100%; background: #555; color: white; border: none; padding: 12px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
+        .alerta-policia { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #e74c3c; color: white; padding: 15px 25px; border-radius: 15px; font-weight: bold; z-index: 600; display: none; text-align: center; animation: pulseAlert 0.5s infinite; }
+        @keyframes pulseAlert { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.05); } }
+        .alerta-policia.ativo { display: block; }
 
         .modal-pagamento-sucesso { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 600; justify-content: center; align-items: center; }
         .modal-pagamento-sucesso.ativo { display: flex; }
@@ -160,9 +201,6 @@
         .banco-saldo-card::before { content: ''; position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; }
         .banco-saldo-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8; margin-bottom: 5px; }
         .banco-saldo-valor { font-size: 2.5rem; font-weight: bold; position: relative; z-index: 1; }
-        .banco-acoes { display: flex; gap: 10px; margin-bottom: 15px; }
-        .banco-acao { flex: 1; background: white; border-radius: 15px; padding: 15px; text-align: center; box-shadow: 0 3px 10px rgba(0,0,0,0.1); cursor: pointer; transition: 0.2s; }
-        .banco-acao:active { transform: scale(0.95); } .banco-acao-icone { font-size: 1.8rem; margin-bottom: 5px; }
         .banco-transacoes { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
         .banco-transacoes-titulo { font-weight: bold; color: #333; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
         .transacao-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
@@ -207,22 +245,39 @@
     <div class="barra-data" id="barraData"></div>
     <div class="barra-dinheiro"><span>💰</span><span id="saldo">R$ 0,00</span></div>
 
-    <!-- Botão de Salvar -->
     <button class="btn-salvar" id="btnSalvar" title="Salvar progresso">💾 Salvar</button>
     <div class="indicador-salvamento" id="indicadorSalvamento">✅ Salvo com sucesso!</div>
 
-    <div class="modal-pagamento-sucesso" id="modalPagamentoSucesso">
-        <div class="pagamento-sucesso-container">
-            <div class="pagamento-sucesso-icone">✅</div>
-            <div class="pagamento-sucesso-titulo" id="pagamentoTitulo">Pago com Sucesso!</div>
-            <div class="pagamento-sucesso-mensagem" id="pagamentoMensagem"></div>
-            <div class="pagamento-sucesso-prox" id="pagamentoProx"></div>
-            <button class="btn-fechar-sucesso" id="btnFecharSucesso">OK</button>
+    <div class="modal-prisao" id="modalPrisao"><div class="prisao-container"><div class="prisao-icone">🚔</div><div class="prisao-titulo">VOCÊ FOI PRESO!</div><div class="prisao-mensagem">A polícia encontrou ervas ilegais com você!</div><div class="prisao-tempo" id="prisaoTempo">⏱️ 5:00</div><div class="prisao-progresso"><div class="prisao-barra" id="prisaoBarra" style="width:0%"></div></div><p style="color:#888;">Aguarde 5 minutos para ser liberado...</p></div></div>
+    <div class="alerta-policia" id="alertaPolicia">🚔 POLÍCIA!<br>Bateram na sua porta!</div>
+
+    <div class="modal-faccao" id="modalFaccao"><div class="faccao-container"><div class="faccao-header">🏴‍☠️ Facções Criminosas</div><div id="faccaoConteudo"></div><button class="btn-fechar-faccao" id="btnFecharFaccao">🔙 Sair</button></div></div>
+
+    <div class="modal-mercado" id="modalMercado">
+        <div class="mercado-container">
+            <div class="mercado-header">🌿 WhatsApp do Mercado Negro</div>
+            <div class="mercado-stats">
+                <div class="mercado-stat"><div class="mercado-stat-valor" id="ervaEstoque">0g</div><div class="mercado-stat-label">Estoque</div></div>
+                <div class="mercado-stat"><div class="mercado-stat-valor" id="ervaLucro">R$ 0,00</div><div class="mercado-stat-label">Lucro Hoje</div></div>
+                <div class="mercado-stat"><div class="mercado-stat-valor" id="ervaComprasHoje">0</div><div class="mercado-stat-label" id="ervaLimiteLabel">Compras</div></div>
+            </div>
+            <div class="erva-card">
+                <div class="erva-nome">🌿 Erva Natural</div>
+                <div class="erva-descricao">Produto de alta qualidade. Risco: Médio</div>
+                <div class="erva-precos"><span class="erva-compra">Compra: R$ 100,00/g</span><span class="erva-venda">Venda: R$ 300,00/g</span></div>
+                <div class="erva-quantidade" style="margin-top:5px;">Seu estoque: <span id="ervaQtd">0g</span></div>
+                <div class="erva-limite" id="ervaLimiteTexto"></div>
+                <div class="erva-botoes">
+                    <button class="btn-comprar-erva" id="btnComprarErva" onclick="comprarErva()">🛒 Comprar 1g</button>
+                    <button class="btn-vender-erva" id="btnVenderErva" onclick="venderErva()" disabled>💸 Vender 1g</button>
+                </div>
+            </div>
+            <button class="btn-fechar-mercado" id="btnFecharMercado">🔙 Sair do Mercado</button>
         </div>
     </div>
-    <div class="modal-ifood" id="modalIfood">
-        <div class="ifood-container"><div class="ifood-header">🛵 iFood Entregador</div><div class="ifood-stats"><div class="ifood-stat"><div class="ifood-stat-valor" id="ifoodGanhos">R$ 0,00</div><div class="ifood-stat-label">Ganhos Hoje</div></div><div class="ifood-stat"><div class="ifood-stat-valor" id="ifoodCorridas">0</div><div class="ifood-stat-label">Corridas</div></div><div class="ifood-stat"><div class="ifood-stat-valor" id="ifoodRecusas">0/5</div><div class="ifood-stat-label">Recusas</div></div></div><div id="ifoodConteudo"></div><button class="btn-fechar-ifood" id="btnFecharIfood">🔙 Sair do iFood</button></div>
-    </div>
+
+    <div class="modal-pagamento-sucesso" id="modalPagamentoSucesso"><div class="pagamento-sucesso-container"><div class="pagamento-sucesso-icone">✅</div><div class="pagamento-sucesso-titulo" id="pagamentoTitulo"></div><div class="pagamento-sucesso-mensagem" id="pagamentoMensagem"></div><div class="pagamento-sucesso-prox" id="pagamentoProx"></div><button class="btn-fechar-sucesso" id="btnFecharSucesso">OK</button></div></div>
+    <div class="modal-ifood" id="modalIfood"><div class="ifood-container"><div class="ifood-header">🛵 iFood Entregador</div><div class="ifood-stats"><div class="ifood-stat"><div class="ifood-stat-valor" id="ifoodGanhos">R$ 0,00</div><div class="ifood-stat-label">Ganhos</div></div><div class="ifood-stat"><div class="ifood-stat-valor" id="ifoodCorridas">0</div><div class="ifood-stat-label">Corridas</div></div><div class="ifood-stat"><div class="ifood-stat-valor" id="ifoodRecusas">0/5</div><div class="ifood-stat-label">Recusas</div></div></div><div id="ifoodConteudo"></div><button class="btn-fechar-ifood" id="btnFecharIfood">🔙 Sair</button></div></div>
     <div class="modal-trabalho" id="modalTrabalho"><div class="trabalho-container"><div class="trabalho-icone-grande" id="trabalhoIcone">🔧</div><div class="trabalho-titulo-modal" id="trabalhoTituloModal"></div><div class="progresso-container"><div class="progresso-barra" id="progressoBarra">0%</div></div><div class="progresso-tempo" id="progressoTempo">⏱️ 60s</div><button class="btn-cancelar-trabalho" id="btnCancelarTrabalho">❌ Cancelar</button></div></div>
     <div class="modal-dormir" id="modalDormir"><div class="dormir-container"><div class="dormir-icone">😴</div><div class="dormir-texto">Dormindo... 💤</div><div class="dormir-progresso"><div class="dormir-barra" id="dormirBarra" style="width:0%"></div></div><div class="dormir-texto" id="dormirTempo">⏱️ 5s</div><button class="btn-acordar" id="btnAcordar">⏰ Acordar</button></div></div>
 
@@ -238,6 +293,8 @@
                 <div class="icone-app" id="iconeBanco"><div class="icone-img" style="background:radial-gradient(circle at 30% 30%,#5b9bd5,#1e5a99)">🏦</div><span>Banco</span></div>
                 <div class="icone-app" id="iconeCursos"><div class="icone-img" style="background:radial-gradient(circle at 30% 30%,#f0a04b,#e67e22)">📚</div><span>Cursos</span></div>
                 <div class="icone-app" id="iconeContas"><div class="icone-img" style="background:radial-gradient(circle at 30% 30%,#ef5350,#c62828)">🧾</div><span>Contas</span></div>
+                <div class="icone-app" id="iconeFaccao"><div class="icone-img" style="background:radial-gradient(circle at 30% 30%,#8b0000,#b71c1c)">🏴‍☠️</div><span>Facção</span></div>
+                <div class="icone-app" id="iconeMercado"><div class="icone-img" style="background:radial-gradient(circle at 30% 30%,#1b5e20,#2e7d32)">🌿</div><span>Mercado</span></div>
             </div>
 
             <div class="whatsapp-aba" id="whatsappAba"><div class="wa-header">💼 Trabalhos Disponíveis</div><div class="wa-trabalhos" id="waTrabalhos"></div><button class="wa-voltar" id="btnVoltarWhatsApp">← Voltar</button></div>
@@ -250,71 +307,44 @@
 
     <script>
         (function() {
-            // ============ SISTEMA DE SALVAMENTO ============
-            const SAVE_KEY = 'casa_interativa_save';
+            const SAVE_KEY = 'casa_interativa_save_v7';
             
             function salvarJogo() {
                 const saveData = {
                     saldo, temCNH, temCursoInformatica, fome, sono,
-                    cursosAdquiridos, transacoes: transacoes.slice(0, 20),
-                    contasAtivas: contasAtivas.map(c => ({
-                        nome: c.nome, valor: c.valor, icone: c.icone,
-                        diasVencimento: c.diasVencimento,
-                        vencimento: c.vencimento.toISOString(), id: c.id
-                    })),
-                    contasPagas: contasPagas.map(c => ({
-                        nome: c.nome, valor: c.valor, icone: c.icone,
-                        diasVencimento: c.diasVencimento,
-                        dataReativacao: c.dataReativacao.toISOString()
-                    })),
-                    ultimoDiaIfood, ifoodRecusas, ifoodCorridasFeitas, ifoodGanhos,
-                    ifoodBloqueado, timestamp: Date.now()
+                    cursosAdquiridos, transacoes: transacoes.slice(0, 30),
+                    contasAtivas: contasAtivas.map(c => ({...c, vencimento: c.vencimento.toISOString()})),
+                    contasPagas: contasPagas.map(c => ({...c, dataReativacao: c.dataReativacao.toISOString()})),
+                    ultimoDiaIfood, ifoodRecusas, ifoodCorridasFeitas, ifoodGanhos, ifoodBloqueado,
+                    ervaEstoque, ervaLucro, preso, tempoPrisaoRestante,
+                    faccaoAtual, ervaComprasHoje, ultimoDiaErva, timestamp: Date.now()
                 };
-                
-                try {
-                    localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
-                    mostrarIndicadorSalvamento();
-                } catch (e) {
-                    mostrarNotificacao('❌ Erro ao salvar!');
-                }
+                try { localStorage.setItem(SAVE_KEY, JSON.stringify(saveData)); mostrarIndicadorSalvamento(); } catch(e) {}
             }
 
             function carregarJogo() {
                 try {
                     const saved = localStorage.getItem(SAVE_KEY);
                     if (!saved) return false;
-                    
                     const data = JSON.parse(saved);
-                    
-                    saldo = data.saldo || 0;
-                    temCNH = data.temCNH || false;
+                    saldo = data.saldo || 0; temCNH = data.temCNH || false;
                     temCursoInformatica = data.temCursoInformatica || false;
-                    fome = data.fome || 100;
-                    sono = data.sono || 100;
+                    fome = data.fome || 100; sono = data.sono || 100;
                     cursosAdquiridos = data.cursosAdquiridos || [];
                     transacoes = data.transacoes || [];
                     ultimoDiaIfood = data.ultimoDiaIfood || null;
-                    ifoodRecusas = data.ifoodRecusas || 0;
-                    ifoodCorridasFeitas = data.ifoodCorridasFeitas || 0;
-                    ifoodGanhos = data.ifoodGanhos || 0;
-                    ifoodBloqueado = data.ifoodBloqueado || false;
-                    
-                    if (data.contasAtivas) {
-                        contasAtivas = data.contasAtivas.map(c => ({
-                            ...c, vencimento: new Date(c.vencimento)
-                        }));
-                    }
-                    if (data.contasPagas) {
-                        contasPagas = data.contasPagas.map(c => ({
-                            ...c, dataReativacao: new Date(c.dataReativacao)
-                        }));
-                    }
-                    
+                    ifoodRecusas = data.ifoodRecusas || 0; ifoodCorridasFeitas = data.ifoodCorridasFeitas || 0;
+                    ifoodGanhos = data.ifoodGanhos || 0; ifoodBloqueado = data.ifoodBloqueado || false;
+                    ervaEstoque = data.ervaEstoque || 0; ervaLucro = data.ervaLucro || 0;
+                    preso = data.preso || false; tempoPrisaoRestante = data.tempoPrisaoRestante || 0;
+                    faccaoAtual = data.faccaoAtual || null;
+                    ervaComprasHoje = data.ervaComprasHoje || 0;
+                    ultimoDiaErva = data.ultimoDiaErva || null;
+                    if (data.contasAtivas) contasAtivas = data.contasAtivas.map(c => ({...c, vencimento: new Date(c.vencimento)}));
+                    if (data.contasPagas) contasPagas = data.contasPagas.map(c => ({...c, dataReativacao: new Date(c.dataReativacao)}));
+                    if (preso) iniciarPrisao(tempoPrisaoRestante);
                     return true;
-                } catch (e) {
-                    console.log('Erro ao carregar save:', e);
-                    return false;
-                }
+                } catch(e) { return false; }
             }
 
             function mostrarIndicadorSalvamento() {
@@ -323,21 +353,25 @@
                 setTimeout(() => indicador.classList.remove('visivel'), 2000);
             }
 
-            function resetarJogo() {
-                if (confirm('⚠️ Tem certeza que deseja resetar TODO o progresso? Esta ação não pode ser desfeita!')) {
-                    localStorage.removeItem(SAVE_KEY);
-                    location.reload();
-                }
-            }
-
-            // ============ VARIÁVEIS DO JOGO ============
+            // ============ VARIÁVEIS ============
             let saldo = 0, temCNH = false, temCursoInformatica = false, trabalhando = false, dormindo = false;
             let fome = 100, sono = 100;
             let intervaloProgresso = null, intervaloDormir = null, intervaloIfood = null, intervaloSave = null;
+            let intervaloPolicia = null, intervaloPrisao = null;
             let transacoes = [];
             let ifoodAtivo = false, ifoodRecusas = 0, ifoodCorridasFeitas = 0, ifoodGanhos = 0;
             let ifoodBloqueado = false, ultimoDiaIfood = null, corridaAtual = null;
+            let ervaEstoque = 0, ervaLucro = 0;
+            let preso = false, tempoPrisaoRestante = 0;
+            let faccaoAtual = null;
+            let ervaComprasHoje = 0, ultimoDiaErva = null;
             const TEMPO_TRABALHO = 60;
+
+            const FACCOES = [
+                { id: 'cv', nome: 'CV - Comando Vermelho', icone: '🔴', descricao: 'A maior facção do Rio de Janeiro', cor: '#ff0000', preco: 1000, limiteDiario: 5 },
+                { id: 'pcc', nome: 'PCC - Primeiro Comando da Capital', icone: '⚫', descricao: 'Domina São Paulo e região', cor: '#333333', preco: 1000, limiteDiario: 3 },
+                { id: 'bonde40', nome: 'Bonde dos 40', icone: '💀', descricao: 'Facção em ascensão no Nordeste', cor: '#ff6600', preco: 1000, limiteDiario: 1 }
+            ];
 
             const CONTAS_BASE = [
                 { nome: 'Conta de Luz', valor: 200, icone: '💡', diasVencimento: 2 },
@@ -360,6 +394,10 @@
             const barraFome = document.getElementById('barraFome'), barraSono = document.getElementById('barraSono');
             const textoFome = document.getElementById('textoFome'), textoSono = document.getElementById('textoSono');
             const saldoElement = document.getElementById('saldo'), barraData = document.getElementById('barraData');
+            const modalFaccao = document.getElementById('modalFaccao'), faccaoConteudo = document.getElementById('faccaoConteudo');
+            const modalMercado = document.getElementById('modalMercado');
+            const modalPrisao = document.getElementById('modalPrisao'), alertaPolicia = document.getElementById('alertaPolicia');
+            const prisaoTempoEl = document.getElementById('prisaoTempo'), prisaoBarra = document.getElementById('prisaoBarra');
             const modalIfood = document.getElementById('modalIfood'), ifoodConteudo = document.getElementById('ifoodConteudo');
             const ifoodGanhosEl = document.getElementById('ifoodGanhos'), ifoodCorridasEl = document.getElementById('ifoodCorridas'), ifoodRecusasEl = document.getElementById('ifoodRecusas');
             const modalTrabalho = document.getElementById('modalTrabalho'), modalDormir = document.getElementById('modalDormir');
@@ -367,23 +405,181 @@
             const progressoBarra = document.getElementById('progressoBarra'), progressoTempo = document.getElementById('progressoTempo');
             const telaCelular = document.getElementById('telaCelular'), horaReal = document.getElementById('horaReal');
             const waTrabalhos = document.getElementById('waTrabalhos'), contasConteudoEl = document.getElementById('contasConteudo');
-            const listaTransacoes = document.getElementById('listaTransacoes');
-            const bancoSaldoValor = document.getElementById('bancoSaldoValor');
+            const listaTransacoes = document.getElementById('listaTransacoes'), bancoSaldoValor = document.getElementById('bancoSaldoValor');
+            const ervaEstoqueEl = document.getElementById('ervaEstoque'), ervaLucroEl = document.getElementById('ervaLucro');
+            const ervaQtd = document.getElementById('ervaQtd'), btnVenderErva = document.getElementById('btnVenderErva');
+            const btnComprarErva = document.getElementById('btnComprarErva');
+            const ervaComprasHojeEl = document.getElementById('ervaComprasHoje');
+            const ervaLimiteLabel = document.getElementById('ervaLimiteLabel');
+            const ervaLimiteTexto = document.getElementById('ervaLimiteTexto');
 
             function formatarDinheiro(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
             function formatarData(d) { return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }); }
 
             function atualizarBarras() { barraFome.style.width=fome+'%'; barraSono.style.width=sono+'%'; textoFome.textContent=Math.round(fome)+'%'; textoSono.textContent=Math.round(sono)+'%'; }
-            function diminuirFome() { if(!dormindo){fome=Math.max(0,fome-2);atualizarBarras();} }
-            function diminuirSono() { if(!dormindo){sono=Math.max(0,sono-3);atualizarBarras();} }
-            function comer() { if(dormindo)return mostrarNotificacao('😴 Dormindo!'); if(fome>=100)return mostrarNotificacao('🍔 Satisfeito!'); fome=Math.min(100,fome+35);atualizarBarras();mostrarNotificacao('🍳 Comeu!');salvarJogo(); }
-            function dormir() { if(dormindo)return; if(trabalhando||ifoodAtivo)return mostrarNotificacao('⚠️ Termine o trabalho!'); dormindo=true;fecharCelular();modalDormir.classList.add('ativo');let td=0;document.getElementById('btnAcordar').style.display='none';intervaloDormir=setInterval(()=>{td+=0.5;document.getElementById('dormirBarra').style.width=(td/5)*100+'%';if(td>=5)acordar();},500);setTimeout(()=>document.getElementById('btnAcordar').style.display='block',2000); }
+            function diminuirFome() { if(!dormindo&&!preso){fome=Math.max(0,fome-2);atualizarBarras();} }
+            function diminuirSono() { if(!dormindo&&!preso){sono=Math.max(0,sono-3);atualizarBarras();} }
+            function comer() { if(dormindo)return; if(preso)return mostrarNotificacao('🚔 Preso!'); if(fome>=100)return mostrarNotificacao('🍔 Satisfeito!'); fome=Math.min(100,fome+35);atualizarBarras();mostrarNotificacao('🍳 Comeu!');salvarJogo(); }
+            function dormir() { if(dormindo||preso)return; if(trabalhando||ifoodAtivo)return mostrarNotificacao('⚠️ Termine o trabalho!'); dormindo=true;fecharCelular();modalDormir.classList.add('ativo');let td=0;document.getElementById('btnAcordar').style.display='none';intervaloDormir=setInterval(()=>{td+=0.5;document.getElementById('dormirBarra').style.width=(td/5)*100+'%';if(td>=5)acordar();},500);setTimeout(()=>document.getElementById('btnAcordar').style.display='block',2000); }
             function acordar() { if(intervaloDormir){clearInterval(intervaloDormir);intervaloDormir=null;} dormindo=false;modalDormir.classList.remove('ativo');sono=Math.min(100,sono+60);atualizarBarras();mostrarNotificacao('⏰ Acordou!');salvarJogo(); }
 
+            // ============ SISTEMA DE FACÇÕES ============
+            function verificarDiaErva() {
+                const hoje = new Date().toDateString();
+                if (ultimoDiaErva !== hoje) {
+                    ervaComprasHoje = 0;
+                    ultimoDiaErva = hoje;
+                }
+            }
+
+            function getLimiteDiario() {
+                if (!faccaoAtual) return 0;
+                const faccao = FACCOES.find(f => f.id === faccaoAtual);
+                return faccao ? faccao.limiteDiario : 0;
+            }
+
+            function atualizarFaccaoUI() {
+                if (!faccaoConteudo) return;
+                faccaoConteudo.innerHTML = FACCOES.map(f => {
+                    const selecionada = faccaoAtual === f.id;
+                    const podeComprar = !faccaoAtual && saldo >= f.preco;
+                    return `
+                        <div class="faccao-card ${selecionada ? 'selecionada' : ''} ${faccaoAtual && !selecionada ? 'bloqueada' : ''}">
+                            <div class="faccao-icone">${f.icone}</div>
+                            <div class="faccao-nome" style="color:${f.cor}">${f.nome}</div>
+                            <div class="faccao-descricao">${f.descricao}</div>
+                            <div class="faccao-preco">💰 Preço: ${formatarDinheiro(f.preco)}</div>
+                            <div class="faccao-limite">🌿 Limite diário de compras: ${f.limiteDiario} erva(s)</div>
+                            <div class="faccao-status">
+                                ${selecionada ? '<span style="color:#27ae60;">✅ Você é membro!</span>' : 
+                                  faccaoAtual ? '<span style="color:#e74c3c;">🔒 Já está em outra facção</span>' :
+                                  podeComprar ? '<span style="color:#f39c12;">Clique para entrar</span>' :
+                                  '<span style="color:#e74c3c;">Saldo insuficiente</span>'}
+                            </div>
+                            ${!faccaoAtual && !selecionada ? `<button class="btn-entrar-faccao" onclick="entrarFaccao('${f.id}')" ${!podeComprar ? 'disabled' : ''}>Entrar</button>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function entrarFaccao(id) {
+                if (faccaoAtual) return mostrarNotificacao('❌ Você já está em uma facção!');
+                const faccao = FACCOES.find(f => f.id === id);
+                if (!faccao) return;
+                if (saldo < faccao.preco) return mostrarNotificacao('❌ Saldo insuficiente!');
+                
+                saldo -= faccao.preco;
+                faccaoAtual = id;
+                ervaComprasHoje = 0;
+                ultimoDiaErva = new Date().toDateString();
+                transacoes.unshift({ nome: 'Entrou na facção: ' + faccao.nome, valor: faccao.preco, tipo: 'debito', data: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) });
+                atualizarSaldo(); atualizarListaTransacoes(); atualizarFaccaoUI();
+                mostrarNotificacao(`🏴‍☠️ Agora você é membro do ${faccao.nome}!`);
+                salvarJogo();
+            }
+
+            window.entrarFaccao = entrarFaccao;
+
+            function abrirFaccao() {
+                if (preso) return mostrarNotificacao('🚔 Preso!');
+                if (dormindo) return;
+                fecharCelular();
+                atualizarFaccaoUI();
+                modalFaccao.classList.add('ativo');
+            }
+
+            function fecharFaccao() {
+                modalFaccao.classList.remove('ativo');
+                salvarJogo();
+            }
+
+            // ============ SISTEMA DE ERVA / MERCADO NEGRO ============
+            function atualizarMercadoUI() {
+                verificarDiaErva();
+                ervaEstoqueEl.textContent = ervaEstoque + 'g';
+                ervaLucroEl.textContent = formatarDinheiro(ervaLucro);
+                ervaQtd.textContent = ervaEstoque + 'g';
+                btnVenderErva.disabled = ervaEstoque <= 0;
+                
+                const limite = getLimiteDiario();
+                ervaComprasHojeEl.textContent = ervaComprasHoje + '/' + limite;
+                ervaLimiteLabel.textContent = 'Compras (' + limite + '/dia)';
+                
+                if (limite > 0 && ervaComprasHoje >= limite) {
+                    btnComprarErva.disabled = true;
+                    ervaLimiteTexto.textContent = '🚫 Limite diário de compras atingido! (' + ervaComprasHoje + '/' + limite + ')';
+                    ervaLimiteTexto.style.color = '#e74c3c';
+                } else if (limite > 0) {
+                    btnComprarErva.disabled = false;
+                    ervaLimiteTexto.textContent = '📊 Compras hoje: ' + ervaComprasHoje + '/' + limite;
+                    ervaLimiteTexto.style.color = '#f39c12';
+                } else {
+                    btnComprarErva.disabled = true;
+                    ervaLimiteTexto.textContent = '🏴‍☠️ Entre em uma facção para comprar';
+                    ervaLimiteTexto.style.color = '#888';
+                }
+            }
+
+            function comprarErva() { 
+                if (preso) return mostrarNotificacao('🚔 Preso!');
+                if (!faccaoAtual) return mostrarNotificacao('🏴‍☠️ Você precisa ser de uma facção!');
+                
+                verificarDiaErva();
+                const limite = getLimiteDiario();
+                
+                if (ervaComprasHoje >= limite) {
+                    return mostrarNotificacao(`🚫 Limite diário atingido! (${ervaComprasHoje}/${limite})`);
+                }
+                
+                if (saldo < 100) return mostrarNotificacao('❌ Saldo insuficiente!');
+                
+                saldo -= 100;
+                ervaEstoque++;
+                ervaComprasHoje++;
+                transacoes.unshift({nome:'Compra de Erva (1g)',valor:100,tipo:'debito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
+                atualizarSaldo(); atualizarListaTransacoes(); atualizarMercadoUI();
+                mostrarNotificacao(`🌿 Comprou 1g por R$ 100,00 (${ervaComprasHoje}/${limite} hoje)`);
+                salvarJogo();
+            }
+
+            function venderErva() { 
+                if (preso) return mostrarNotificacao('🚔 Preso!'); 
+                if (ervaEstoque <= 0) return mostrarNotificacao('❌ Sem estoque!'); 
+                ervaEstoque--; 
+                const lucro = 300; 
+                saldo += lucro; 
+                ervaLucro += lucro; 
+                transacoes.unshift({nome:'Venda de Erva (1g)',valor:lucro,tipo:'credito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
+                atualizarSaldo(); atualizarListaTransacoes(); atualizarMercadoUI();
+                mostrarNotificacao('💸 Vendeu 1g por R$ 300,00!');
+                salvarJogo(); 
+            }
+
+            window.comprarErva = comprarErva;
+            window.venderErva = venderErva;
+
+            function abrirMercado() { 
+                if (preso) return mostrarNotificacao('🚔 Preso!');
+                if (!faccaoAtual) return mostrarNotificacao('🏴‍☠️ Entre em uma facção primeiro!');
+                if (dormindo) return;
+                fecharCelular();
+                atualizarMercadoUI();
+                modalMercado.classList.add('ativo');
+            }
+
+            function fecharMercado() { modalMercado.classList.remove('ativo'); salvarJogo(); }
+
+            // ============ SISTEMA DE POLÍCIA ============
+            function verificarPolicia() { if(preso)return; if(ervaEstoque>0){alertaPolicia.classList.add('ativo');setTimeout(()=>alertaPolicia.classList.remove('ativo'),2000);if(Math.random()<0.5){iniciarPrisao(300);}else{mostrarNotificacao('🍀 Polícia bateu mas você escondeu!');}} }
+            function iniciarPrisao(segundos) { preso=true;tempoPrisaoRestante=segundos;fecharCelular();if(modalMercado.classList.contains('ativo'))modalMercado.classList.remove('ativo');if(modalFaccao.classList.contains('ativo'))modalFaccao.classList.remove('ativo');if(modalIfood.classList.contains('ativo'))fecharIfood();if(modalTrabalho.classList.contains('ativo')){clearInterval(intervaloProgresso);trabalhando=false;modalTrabalho.classList.remove('ativo');}modalPrisao.classList.add('ativo');prisaoBarra.style.width='0%';atualizarPrisaoUI();if(intervaloPrisao)clearInterval(intervaloPrisao);intervaloPrisao=setInterval(()=>{tempoPrisaoRestante--;atualizarPrisaoUI();if(tempoPrisaoRestante<=0)libertarPrisao();},1000);if(ervaEstoque>0){mostrarNotificacao('🚔 Perdeu '+ervaEstoque+'g de erva!');ervaEstoque=0;atualizarMercadoUI();}salvarJogo(); }
+            function atualizarPrisaoUI() { const min=Math.floor(tempoPrisaoRestante/60);const seg=tempoPrisaoRestante%60;prisaoTempoEl.textContent=`⏱️ ${min}:${String(seg).padStart(2,'0')}`;prisaoBarra.style.width=((300-tempoPrisaoRestante)/300)*100+'%'; }
+            function libertarPrisao() { preso=false;tempoPrisaoRestante=0;if(intervaloPrisao){clearInterval(intervaloPrisao);intervaloPrisao=null;}modalPrisao.classList.remove('ativo');mostrarNotificacao('🆓 Liberado da prisão!');salvarJogo(); }
+
+            // ============ OUTROS SISTEMAS ============
             function inicializarContas() { if(contasAtivas.length===0&&contasPagas.length===0){CONTAS_BASE.forEach(c=>{const venc=new Date();venc.setDate(venc.getDate()+c.diasVencimento);contasAtivas.push({...c,vencimento:venc,id:Date.now()+Math.random()});});} }
             function verificarReativacaoContas() { const agora=new Date(); let reativadas=[]; contasPagas=contasPagas.filter(c=>{if(c.dataReativacao<=agora){const venc=new Date();venc.setDate(venc.getDate()+c.diasVencimento);contasAtivas.push({nome:c.nome,valor:c.valor,icone:c.icone,diasVencimento:c.diasVencimento,vencimento:venc,id:Date.now()+Math.random()});reativadas.push(c.nome);return false;}return true;}); if(reativadas.length>0){mostrarNotificacao(`📋 ${reativadas.join(' e ')} disponível(is)!`);atualizarContasUI();salvarJogo();} }
             function verificarContasVencidas() { const agora=new Date(); let alterou=false; contasAtivas=contasAtivas.filter(c=>{if(c.vencimento<=agora){if(saldo>=c.valor){saldo-=c.valor;transacoes.unshift({nome:c.nome+' (Débito Auto)',valor:c.valor,tipo:'debito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});const dr=new Date();dr.setDate(dr.getDate()+c.diasVencimento);contasPagas.push({nome:c.nome,valor:c.valor,icone:c.icone,diasVencimento:c.diasVencimento,dataReativacao:dr});mostrarNotificacao(`💸 ${c.nome} paga automaticamente: ${formatarDinheiro(c.valor)}`);alterou=true;return false;}return true;}return true;}); if(alterou){atualizarSaldo();atualizarListaTransacoes();atualizarContasUI();salvarJogo();} }
-            function pagarConta(id) { const i=contasAtivas.findIndex(c=>c.id===id); if(i===-1)return; const c=contasAtivas[i]; if(saldo>=c.valor){saldo-=c.valor;transacoes.unshift({nome:c.nome,valor:c.valor,tipo:'debito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});contasAtivas.splice(i,1);const dr=new Date();dr.setDate(dr.getDate()+c.diasVencimento);contasPagas.push({nome:c.nome,valor:c.valor,icone:c.icone,diasVencimento:c.diasVencimento,dataReativacao:dr});atualizarSaldo();atualizarListaTransacoes();const card=document.getElementById('conta-'+c.id);if(card){card.classList.add('removendo');setTimeout(()=>atualizarContasUI(),400);}else atualizarContasUI();document.getElementById('pagamentoTitulo').textContent='✅ Pago com Sucesso!';document.getElementById('pagamentoMensagem').textContent=`${c.nome} no valor de ${formatarDinheiro(c.valor)} foi pago!`;document.getElementById('pagamentoProx').innerHTML=`📅 Esta conta <b>sumiu</b> e só reaparecerá em <b>${c.diasVencimento} dias</b><br>🕐 Data: <b>${formatarData(dr)}</b>`;modalPagamentoSucesso.classList.add('ativo');salvarJogo();}else mostrarNotificacao('❌ Saldo insuficiente!'); }
+            function pagarConta(id) { const i=contasAtivas.findIndex(c=>c.id===id); if(i===-1)return; const c=contasAtivas[i]; if(saldo>=c.valor){saldo-=c.valor;transacoes.unshift({nome:c.nome,valor:c.valor,tipo:'debito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});contasAtivas.splice(i,1);const dr=new Date();dr.setDate(dr.getDate()+c.diasVencimento);contasPagas.push({nome:c.nome,valor:c.valor,icone:c.icone,diasVencimento:c.diasVencimento,dataReativacao:dr});atualizarSaldo();atualizarListaTransacoes();const card=document.getElementById('conta-'+c.id);if(card){card.classList.add('removendo');setTimeout(()=>atualizarContasUI(),400);}else atualizarContasUI();document.getElementById('pagamentoTitulo').textContent='✅ Pago com Sucesso!';document.getElementById('pagamentoMensagem').textContent=`${c.nome} no valor de ${formatarDinheiro(c.valor)} foi pago!`;document.getElementById('pagamentoProx').innerHTML=`📅 Reaparece em <b>${c.diasVencimento} dias</b><br>🕐 Data: <b>${formatarData(dr)}</b>`;modalPagamentoSucesso.classList.add('ativo');salvarJogo();}else mostrarNotificacao('❌ Saldo insuficiente!'); }
             function atualizarContasUI() { if(!contasConteudoEl)return; inicializarContas();verificarReativacaoContas(); if(contasAtivas.length===0){let h='<div class="sem-contas"><div class="sem-contas-icone">✅</div><div class="sem-contas-titulo">Todas as contas estão pagas!</div>';if(contasPagas.length>0){h+='<div style="font-weight:bold;color:#333;margin-top:15px;">📋 Próximas:</div>';contasPagas.forEach(c=>{h+=`<div class="prox-conta">${c.icone} <b>${c.nome}</b> - ${formatarDinheiro(c.valor)}<br>📅 Reaparece: ${formatarData(c.dataReativacao)}</div>`;});}h+='</div>';contasConteudoEl.innerHTML=h;}else{let h='<div style="font-weight:bold;color:#e74c3c;margin-bottom:10px;">📌 Pendentes</div>';contasAtivas.forEach(c=>{const dr=Math.ceil((c.vencimento-new Date())/(1000*60*60*24));h+=`<div class="conta-card" id="conta-${c.id}"><div class="conta-icone">${c.icone}</div><div class="conta-info"><div class="conta-nome">${c.nome}</div><div class="conta-descricao">${dr<=0?'⚠️ Vence hoje!':'Vence em '+dr+' dia(s)'}</div><div class="conta-vencimento">📅 ${formatarData(c.vencimento)}</div><div class="conta-valor">${formatarDinheiro(c.valor)}</div></div><button class="btn-pagar" onclick="window.pagarConta(${c.id})">💳 Pagar</button></div>`;});contasConteudoEl.innerHTML=h;} }
             window.pagarConta = pagarConta;
 
@@ -394,10 +590,10 @@
             function recusarCorrida() { ifoodRecusas++;corridaAtual=null;atualizarIfoodUI();if(ifoodRecusas>=5){ifoodBloqueado=true;ifoodConteudo.innerHTML='<div class="ifood-bloqueado">🚫 Bloqueado! Volte amanhã.</div>';}else{ifoodConteudo.innerHTML='<div class="ifood-esperando"><div class="pulse">🛵</div><p>Aguardando corrida...</p></div>';}salvarJogo(); }
             window.aceitarCorrida=aceitarCorrida;window.recusarCorrida=recusarCorrida;
 
-            function abrirIfood() { if(!temCNH)return mostrarNotificacao('🏍️ Precisa de CNH A!'); if(dormindo)return; verificarDiaIfood(); if(ifoodBloqueado)return mostrarNotificacao('🚫 Bloqueado!'); ifoodAtivo=true;fecharCelular();modalIfood.classList.add('ativo');atualizarIfoodUI();ifoodConteudo.innerHTML='<div class="ifood-esperando"><div class="pulse">🛵</div><p>Aguardando corrida...</p></div>';if(intervaloIfood)clearInterval(intervaloIfood);setTimeout(()=>{if(ifoodAtivo)gerarCorrida();},30000);intervaloIfood=setInterval(()=>{if(ifoodAtivo&&!ifoodBloqueado&&!corridaAtual)gerarCorrida();},30000); }
+            function abrirIfood() { if(!temCNH)return mostrarNotificacao('🏍️ Precisa de CNH A!'); if(preso)return mostrarNotificacao('🚔 Preso!'); if(dormindo)return; verificarDiaIfood(); if(ifoodBloqueado)return mostrarNotificacao('🚫 Bloqueado!'); ifoodAtivo=true;fecharCelular();modalIfood.classList.add('ativo');atualizarIfoodUI();ifoodConteudo.innerHTML='<div class="ifood-esperando"><div class="pulse">🛵</div><p>Aguardando corrida...</p></div>';if(intervaloIfood)clearInterval(intervaloIfood);setTimeout(()=>{if(ifoodAtivo)gerarCorrida();},30000);intervaloIfood=setInterval(()=>{if(ifoodAtivo&&!ifoodBloqueado&&!corridaAtual)gerarCorrida();},30000); }
             function fecharIfood() { ifoodAtivo=false;if(intervaloIfood){clearInterval(intervaloIfood);intervaloIfood=null;}modalIfood.classList.remove('ativo');salvarJogo(); }
 
-            function iniciarTrabalho(tipo,valor,icone,titulo) { if(trabalhando||ifoodAtivo)return mostrarNotificacao('⚠️ Já trabalhando!'); if(dormindo)return; trabalhando=true;let pa=0;document.getElementById('trabalhoIcone').textContent=icone;document.getElementById('trabalhoTituloModal').textContent=titulo;progressoBarra.style.width='0%';progressoTempo.textContent='⏱️ 60s';fecharCelular();modalTrabalho.classList.add('ativo');intervaloProgresso=setInterval(()=>{pa+=(100/(TEMPO_TRABALHO*10));if(pa>=100){clearInterval(intervaloProgresso);intervaloProgresso=null;progressoBarra.style.width='100%';progressoTempo.textContent='✅';setTimeout(()=>{trabalhando=false;modalTrabalho.classList.remove('ativo');saldo+=valor;transacoes.unshift({nome:tipo,valor,tipo:'credito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});atualizarSaldo();atualizarListaTransacoes();mostrarNotificacao(`✅ ${tipo} +${formatarDinheiro(valor)}`);salvarJogo();},500);}else{progressoBarra.style.width=pa+'%';progressoTempo.textContent=`⏱️ ${Math.ceil(TEMPO_TRABALHO*(1-pa/100))}s`;}},100); }
+            function iniciarTrabalho(tipo,valor,icone,titulo) { if(preso)return mostrarNotificacao('🚔 Preso!'); if(trabalhando||ifoodAtivo)return mostrarNotificacao('⚠️ Já trabalhando!'); if(dormindo)return; if(fome<20)return mostrarNotificacao('🍔 Muita fome!'); if(sono<20)return mostrarNotificacao('😴 Muito sono!'); trabalhando=true;let pa=0;document.getElementById('trabalhoIcone').textContent=icone;document.getElementById('trabalhoTituloModal').textContent=titulo;progressoBarra.style.width='0%';progressoTempo.textContent='⏱️ 60s';fecharCelular();modalTrabalho.classList.add('ativo');intervaloProgresso=setInterval(()=>{pa+=(100/(TEMPO_TRABALHO*10));if(pa>=100){clearInterval(intervaloProgresso);intervaloProgresso=null;progressoBarra.style.width='100%';progressoTempo.textContent='✅';setTimeout(()=>{trabalhando=false;modalTrabalho.classList.remove('ativo');saldo+=valor;transacoes.unshift({nome:tipo,valor,tipo:'credito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});atualizarSaldo();atualizarListaTransacoes();mostrarNotificacao(`✅ ${tipo} +${formatarDinheiro(valor)}`);salvarJogo();},500);}else{progressoBarra.style.width=pa+'%';progressoTempo.textContent=`⏱️ ${Math.ceil(TEMPO_TRABALHO*(1-pa/100))}s`;}},100); }
 
             function atualizarSaldo() { saldoElement.textContent=formatarDinheiro(saldo);if(bancoSaldoValor)bancoSaldoValor.textContent=formatarDinheiro(saldo); }
             function atualizarListaTransacoes() { if(!listaTransacoes)return; if(transacoes.length===0){listaTransacoes.innerHTML='<div style="text-align:center;color:#999;padding:15px;">Nenhuma transação</div>';return;} listaTransacoes.innerHTML=transacoes.slice(0,8).map(t=>`<div class="transacao-item"><div class="transacao-icone ${t.tipo==='credito'?'transacao-credito':'transacao-debito'}">${t.tipo==='credito'?'💰':'💸'}</div><div class="transacao-info"><div class="transacao-nome">${t.nome}</div><div class="transacao-data">${t.data}</div></div><div class="transacao-valor ${t.tipo==='credito'?'valor-credito':'valor-debito'}">${t.tipo==='credito'?'+':'-'} ${formatarDinheiro(t.valor)}</div></div>`).join(''); }
@@ -418,80 +614,52 @@
             function atualizarCursosUI() { const el=document.getElementById('cursosConteudo'); if(!el)return; el.innerHTML=CURSOS.map(c=>{const adq=cursosAdquiridos.includes(c.id);return`<div class="curso-card ${adq?'adquirido':''}" onclick="${adq?'':`comprarCurso('${c.id}')`}"><div class="curso-icone">${c.icone}</div><div class="curso-info"><div class="curso-titulo">${c.nome}</div><div class="curso-descricao">${c.descricao}</div><div class="curso-valor">💰 ${formatarDinheiro(c.valor)}</div><span class="curso-status ${adq?'curso-adquirido-status':'curso-pago'}">${adq?'✅ Adquirido':'Clique para comprar'}</span></div></div>`;}).join(''); }
             window.comprarCurso=function(id){const c=CURSOS.find(x=>x.id===id);if(!c||cursosAdquiridos.includes(id))return;if(saldo>=c.valor){saldo-=c.valor;cursosAdquiridos.push(id);transacoes.unshift({nome:'Curso: '+c.nome,valor:c.valor,tipo:'debito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});if(id==='informatica')temCursoInformatica=true;atualizarSaldo();atualizarListaTransacoes();atualizarCursosUI();atualizarWaTrabalhos();mostrarNotificacao(`✅ Curso de ${c.nome} adquirido!`);salvarJogo();}else mostrarNotificacao('❌ Saldo insuficiente!');};
 
-            function abrirCelular() { if(dormindo)return; if(trabalhando||ifoodAtivo)return mostrarNotificacao('⚠️ Termine o trabalho!'); telaCelular.classList.add('ativa');document.querySelectorAll('.whatsapp-aba,.banco-aba,.cursos-aba,.contas-aba').forEach(a=>a.classList.remove('mostrar')); }
+            function abrirCelular() { if(dormindo||preso)return; if(trabalhando||ifoodAtivo)return mostrarNotificacao('⚠️ Termine o trabalho!'); telaCelular.classList.add('ativa');document.querySelectorAll('.whatsapp-aba,.banco-aba,.cursos-aba,.contas-aba').forEach(a=>a.classList.remove('mostrar')); }
             function fecharCelular() { telaCelular.classList.remove('ativa');document.querySelectorAll('.whatsapp-aba,.banco-aba,.cursos-aba,.contas-aba').forEach(a=>a.classList.remove('mostrar')); }
             function mostrarNotificacao(msg) { const n=document.createElement('div');n.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:12px 24px;border-radius:25px;font-weight:bold;z-index:600;max-width:90%;text-align:center;';n.textContent=msg;document.body.appendChild(n);setTimeout(()=>{n.style.opacity='0';n.style.transition='0.3s';setTimeout(()=>n.remove(),300);},2000); }
             function atualizarDataHora() { const agora=new Date();const h=String(agora.getHours()).padStart(2,'0'),m=String(agora.getMinutes()).padStart(2,'0');const icone=(agora.getHours()>=6&&agora.getHours()<18)?'🌞':'🌙';horaReal.textContent=`${h}:${m}`;barraData.innerHTML=`📅 ${formatarData(agora)} ${icone} ${h}:${m}`;body.classList.toggle('dia',agora.getHours()>=6&&agora.getHours()<18);body.classList.toggle('noite',!(agora.getHours()>=6&&agora.getHours()<18)); }
 
             // Eventos
-            document.getElementById('btnSalvar').addEventListener('click', () => { salvarJogo(); mostrarNotificacao('💾 Jogo salvo com sucesso!'); });
-            document.getElementById('btnFecharIfood').addEventListener('click', fecharIfood);
-            document.getElementById('btnFecharSucesso').addEventListener('click', ()=>modalPagamentoSucesso.classList.remove('ativo'));
-            document.getElementById('portaPrincipal').addEventListener('click', ()=>{document.getElementById('cenarioExterno').classList.add('escondido');document.getElementById('cenarioInterno').classList.add('visivel');});
-            document.getElementById('btnSair').addEventListener('click', ()=>{document.getElementById('cenarioInterno').classList.remove('visivel');document.getElementById('cenarioExterno').classList.remove('escondido');});
-            document.getElementById('btnCelularExterno').addEventListener('click', abrirCelular);
-            document.getElementById('btnCelularInterno').addEventListener('click', abrirCelular);
-            document.getElementById('btnFecharCelular').addEventListener('click', fecharCelular);
-            document.getElementById('btnFogao').addEventListener('click', comer);
-            document.getElementById('btnCama').addEventListener('click', dormir);
-            document.getElementById('btnAcordar').addEventListener('click', acordar);
-            document.getElementById('btnCancelarTrabalho').addEventListener('click', ()=>{if(intervaloProgresso){clearInterval(intervaloProgresso);intervaloProgresso=null;}trabalhando=false;modalTrabalho.classList.remove('ativo');});
+            document.getElementById('btnSalvar').addEventListener('click',()=>{salvarJogo();mostrarNotificacao('💾 Jogo salvo!');});
+            document.getElementById('btnFecharFaccao').addEventListener('click',fecharFaccao);
+            document.getElementById('btnFecharMercado').addEventListener('click',fecharMercado);
+            document.getElementById('btnFecharSucesso').addEventListener('click',()=>modalPagamentoSucesso.classList.remove('ativo'));
+            document.getElementById('btnFecharIfood').addEventListener('click',fecharIfood);
+            document.getElementById('portaPrincipal').addEventListener('click',()=>{document.getElementById('cenarioExterno').classList.add('escondido');document.getElementById('cenarioInterno').classList.add('visivel');});
+            document.getElementById('btnSair').addEventListener('click',()=>{document.getElementById('cenarioInterno').classList.remove('visivel');document.getElementById('cenarioExterno').classList.remove('escondido');});
+            document.getElementById('btnCelularExterno').addEventListener('click',abrirCelular);
+            document.getElementById('btnCelularInterno').addEventListener('click',abrirCelular);
+            document.getElementById('btnFecharCelular').addEventListener('click',fecharCelular);
+            document.getElementById('btnFogao').addEventListener('click',comer);
+            document.getElementById('btnCama').addEventListener('click',dormir);
+            document.getElementById('btnAcordar').addEventListener('click',acordar);
+            document.getElementById('btnCancelarTrabalho').addEventListener('click',()=>{if(intervaloProgresso){clearInterval(intervaloProgresso);intervaloProgresso=null;}trabalhando=false;modalTrabalho.classList.remove('ativo');});
+            document.getElementById('iconeFaccao').addEventListener('click',abrirFaccao);
+            document.getElementById('iconeMercado').addEventListener('click',abrirMercado);
+            document.getElementById('iconeWhatsApp').addEventListener('click',()=>{atualizarWaTrabalhos();document.getElementById('whatsappAba').classList.add('mostrar');});
+            document.getElementById('iconeBanco').addEventListener('click',()=>{atualizarSaldo();atualizarListaTransacoes();document.getElementById('bancoAba').classList.add('mostrar');});
+            document.getElementById('iconeCursos').addEventListener('click',()=>{atualizarCursosUI();document.getElementById('cursosAba').classList.add('mostrar');});
+            document.getElementById('iconeContas').addEventListener('click',()=>{inicializarContas();verificarReativacaoContas();atualizarContasUI();document.getElementById('contasAba').classList.add('mostrar');});
+            ['btnVoltarWhatsApp','btnVoltarBanco','btnVoltarCursos','btnVoltarContas'].forEach(id=>document.getElementById(id).addEventListener('click',()=>document.querySelectorAll('.whatsapp-aba,.banco-aba,.cursos-aba,.contas-aba').forEach(a=>a.classList.remove('mostrar'))));
 
-            document.getElementById('iconeWhatsApp').addEventListener('click', ()=>{atualizarWaTrabalhos();document.getElementById('whatsappAba').classList.add('mostrar');});
-            document.getElementById('iconeBanco').addEventListener('click', ()=>{atualizarSaldo();atualizarListaTransacoes();document.getElementById('bancoAba').classList.add('mostrar');});
-            document.getElementById('iconeCursos').addEventListener('click', ()=>{atualizarCursosUI();document.getElementById('cursosAba').classList.add('mostrar');});
-            document.getElementById('iconeContas').addEventListener('click', ()=>{inicializarContas();verificarReativacaoContas();atualizarContasUI();document.getElementById('contasAba').classList.add('mostrar');});
-            ['btnVoltarWhatsApp','btnVoltarBanco','btnVoltarCursos','btnVoltarContas'].forEach(id=>document.getElementById(id).addEventListener('click', ()=>document.querySelectorAll('.whatsapp-aba,.banco-aba,.cursos-aba,.contas-aba').forEach(a=>a.classList.remove('mostrar'))));
+            document.addEventListener('keydown',(e)=>{if(e.shiftKey&&e.key==='R'){e.preventDefault();if(confirm('⚠️ Resetar TODO o progresso?')){localStorage.removeItem(SAVE_KEY);location.reload();}}});
+            document.addEventListener('click',(e)=>{if(telaCelular.classList.contains('ativa')&&!telaCelular.contains(e.target)&&e.target!==document.getElementById('btnCelularExterno')&&e.target!==document.getElementById('btnCelularInterno'))fecharCelular();});
 
-            // Evento de tecla para reset (Shift + R)
-            document.addEventListener('keydown', (e) => {
-                if (e.shiftKey && e.key === 'R') {
-                    e.preventDefault();
-                    resetarJogo();
-                }
-            });
-
-            document.addEventListener('click', (e)=>{if(telaCelular.classList.contains('ativa')&&!telaCelular.contains(e.target)&&e.target!==document.getElementById('btnCelularExterno')&&e.target!==document.getElementById('btnCelularInterno'))fecharCelular();});
-
-            // ============ INICIALIZAÇÃO ============
+            // Inicialização
             const carregou = carregarJogo();
+            atualizarDataHora(); atualizarBarras(); inicializarContas(); atualizarWaTrabalhos();
+            atualizarCursosUI(); atualizarContasUI(); atualizarSaldo(); atualizarListaTransacoes();
+            atualizarMercadoUI(); atualizarFaccaoUI(); verificarDiaIfood(); verificarDiaErva();
             
-            atualizarDataHora();
-            atualizarBarras();
-            inicializarContas();
-            atualizarWaTrabalhos();
-            atualizarCursosUI();
-            atualizarContasUI();
-            atualizarSaldo();
-            atualizarListaTransacoes();
-            verificarDiaIfood();
-            
-            if (!carregou) {
-                mostrarNotificacao('🆕 Novo jogo iniciado!');
-            } else {
-                mostrarNotificacao('📂 Jogo carregado com sucesso!');
-            }
+            if (!carregou) mostrarNotificacao('🆕 Novo jogo iniciado!');
+            else mostrarNotificacao('📂 Jogo carregado!');
 
-            // Salvamento automático a cada 30 segundos
-            intervaloSave = setInterval(() => {
-                salvarJogo();
-            }, 30000);
-
-            // Timers do jogo
+            intervaloSave = setInterval(() => salvarJogo(), 30000);
+            intervaloPolicia = setInterval(() => { if (!preso && ervaEstoque > 0) verificarPolicia(); }, 60000);
             setInterval(diminuirSono, 10000);
             setInterval(diminuirFome, 20000);
-            setInterval(() => {
-                atualizarDataHora();
-                verificarContasVencidas();
-                verificarReativacaoContas();
-                verificarDiaIfood();
-            }, 30000);
-
-            // Salvar antes de fechar a página
-            window.addEventListener('beforeunload', () => {
-                salvarJogo();
-            });
-
+            setInterval(() => { atualizarDataHora(); verificarContasVencidas(); verificarReativacaoContas(); verificarDiaIfood(); verificarDiaErva(); atualizarMercadoUI(); }, 30000);
+            window.addEventListener('beforeunload', () => salvarJogo());
         })();
     </script>
 </body>

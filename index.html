@@ -2,665 +2,2042 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Casa Interativa - Sistema Completo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Vagas Completo</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body { width: 100%; height: 100%; overflow: hidden; position: fixed; top: 0; left: 0; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', system-ui, sans-serif;
-            display: flex; justify-content: center; align-items: center;
-            touch-action: manipulation; -webkit-tap-highlight-color: transparent;
-            user-select: none; -webkit-user-select: none; transition: background 1s ease;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-        body.dia { background: linear-gradient(180deg, #87CEEB 0%, #4A90D9 35%, #2d5a27 35%, #1e3b28 100%); }
-        body.noite { background: linear-gradient(180deg, #0d1b2a 0%, #1b2838 35%, #1a2f1a 35%, #0d1a0d 100%); }
 
-        .barras-status { position: fixed; top: 10px; left: 10px; z-index: 200; display: flex; flex-direction: column; gap: 5px; }
-        .barra-status-item { display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.7); padding: 5px 10px; border-radius: 20px; backdrop-filter: blur(10px); }
-        .barra-status-icone { font-size: 1.2rem; width: 25px; text-align: center; }
-        .barra-status-container { width: 80px; height: 12px; background: #444; border-radius: 10px; overflow: hidden; }
-        .barra-status-preenchimento { height: 100%; border-radius: 10px; transition: width 0.5s ease; }
-        .barra-fome { background: linear-gradient(90deg, #ff6b6b, #ffa500); }
-        .barra-sono { background: linear-gradient(90deg, #6b6bff, #4a90d9); }
-        .barra-status-texto { color: white; font-size: 0.7rem; font-weight: bold; min-width: 30px; }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
 
-        .barra-dinheiro { position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: #ffd700; padding: 10px 18px; border-radius: 25px; font-weight: bold; font-size: 1.1rem; z-index: 200; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: 2px solid #ffd700; backdrop-filter: blur(10px); }
-        .barra-data { position: fixed; top: 90px; left: 10px; background: rgba(0,0,0,0.7); color: white; padding: 8px 15px; border-radius: 25px; font-weight: bold; font-size: 0.8rem; z-index: 200; box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
+        /* Botões Discretos */
+        .botoes-discretos {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 999;
+        }
 
-        .btn-salvar { position: fixed; bottom: 20px; right: 20px; background: #27ae60; color: white; border: none; padding: 10px 16px; border-radius: 25px; font-weight: bold; cursor: pointer; z-index: 200; font-size: 0.85rem; box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.2s; display: flex; align-items: center; gap: 6px; }
-        .btn-salvar:hover { background: #219a52; transform: scale(1.05); }
-        .btn-salvar:active { transform: scale(0.95); }
-        .indicador-salvamento { position: fixed; bottom: 70px; right: 20px; background: rgba(0,0,0,0.8); color: #2ecc71; padding: 8px 15px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; z-index: 200; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-        .indicador-salvamento.visivel { opacity: 1; }
+        .btn-discreto {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-        .container-fullscreen { width: 100vw; height: 100vh; height: 100dvh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; padding: 10px; gap: 10px; }
+        .btn-discreto:hover {
+            background: rgba(255, 255, 255, 0.3);
+            color: rgba(255, 255, 255, 0.9);
+        }
 
-        .modal-prisao { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 700; justify-content: center; align-items: center; }
-        .modal-prisao.ativo { display: flex; }
-        .prisao-container { text-align: center; color: white; padding: 30px; }
-        .prisao-icone { font-size: 6rem; margin-bottom: 20px; animation: shake 0.5s infinite; }
-        @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-        .prisao-titulo { font-size: 2rem; font-weight: bold; color: #e74c3c; margin-bottom: 10px; }
-        .prisao-mensagem { font-size: 1.1rem; margin-bottom: 20px; color: #ccc; }
-        .prisao-tempo { font-size: 2.5rem; font-weight: bold; color: #f39c12; margin-bottom: 20px; }
-        .prisao-progresso { width: 250px; height: 15px; background: #444; border-radius: 10px; overflow: hidden; margin: 20px auto; }
-        .prisao-barra { height: 100%; background: #e74c3c; border-radius: 10px; transition: width 1s linear; }
+        .btn-adm { border: 1px solid rgba(102, 126, 234, 0.5); }
+        .btn-empresa { border: 1px solid rgba(40, 167, 69, 0.5); }
 
-        .modal-faccao { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 500; justify-content: center; align-items: center; }
-        .modal-faccao.ativo { display: flex; }
-        .faccao-container { background: #1a1a1a; border-radius: 20px; padding: 20px; width: 90%; max-width: 380px; max-height: 80vh; overflow-y: auto; border: 2px solid #8b0000; }
-        .faccao-header { background: #111; color: #ff4444; padding: 15px; border-radius: 15px 15px 0 0; text-align: center; font-weight: bold; font-size: 1.2rem; margin: -20px -20px 15px -20px; border-bottom: 2px solid #8b0000; }
-        .faccao-card { background: #222; border: 2px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 12px; transition: 0.2s; cursor: pointer; }
-        .faccao-card:hover { border-color: #ff4444; }
-        .faccao-card.selecionada { border-color: #27ae60; background: #1a2a1a; }
-        .faccao-card.bloqueada { opacity: 0.5; cursor: not-allowed; }
-        .faccao-nome { font-weight: bold; font-size: 1.1rem; color: #ff4444; margin-bottom: 5px; }
-        .faccao-descricao { font-size: 0.8rem; color: #888; margin-bottom: 8px; }
-        .faccao-preco { font-size: 0.9rem; color: #f39c12; font-weight: bold; }
-        .faccao-limite { font-size: 0.75rem; color: #e74c3c; margin-top: 3px; }
-        .faccao-status { font-size: 0.8rem; margin-top: 5px; }
-        .btn-entrar-faccao { background: #8b0000; color: white; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 8px; font-size: 0.9rem; }
-        .btn-entrar-faccao:disabled { background: #555; cursor: not-allowed; }
-        .faccao-icone { font-size: 3rem; text-align: center; margin-bottom: 10px; }
-        .btn-fechar-faccao { width: 100%; background: #555; color: white; border: none; padding: 12px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
 
-        .modal-mercado { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 500; justify-content: center; align-items: center; }
-        .modal-mercado.ativo { display: flex; }
-        .mercado-container { background: #1a1a1a; border-radius: 20px; padding: 20px; width: 90%; max-width: 380px; max-height: 80vh; overflow-y: auto; border: 2px solid #2e7d32; }
-        .mercado-header { background: #111; color: #2e7d32; padding: 15px; border-radius: 15px 15px 0 0; text-align: center; font-weight: bold; font-size: 1.2rem; margin: -20px -20px 15px -20px; border-bottom: 2px solid #2e7d32; }
-        .mercado-stats { display: flex; justify-content: space-around; margin-bottom: 15px; background: #222; border-radius: 15px; padding: 10px; }
-        .mercado-stat { text-align: center; color: #2e7d32; }
-        .mercado-stat-valor { font-size: 1.2rem; font-weight: bold; } .mercado-stat-label { font-size: 0.7rem; color: #888; }
-        
-        .erva-card { background: #222; border: 2px solid #333; border-radius: 15px; padding: 15px; margin-bottom: 12px; transition: 0.2s; }
-        .erva-card:hover { border-color: #2e7d32; }
-        .erva-nome { font-weight: bold; font-size: 1rem; color: #2e7d32; margin-bottom: 5px; }
-        .erva-descricao { font-size: 0.75rem; color: #888; margin-bottom: 8px; }
-        .erva-precos { display: flex; justify-content: space-between; align-items: center; }
-        .erva-compra { font-size: 0.9rem; color: #e74c3c; } .erva-venda { font-size: 0.9rem; color: #27ae60; }
-        .erva-quantidade { font-size: 0.8rem; color: #f39c12; }
-        .erva-limite { font-size: 0.7rem; color: #e74c3c; margin-top: 5px; font-weight: bold; }
-        .erva-botoes { display: flex; gap: 8px; margin-top: 10px; }
-        .btn-comprar-erva { flex: 1; background: #2e7d32; color: white; border: none; padding: 10px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
-        .btn-comprar-erva:disabled { background: #555; cursor: not-allowed; }
-        .btn-vender-erva { flex: 1; background: #c62828; color: white; border: none; padding: 10px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
-        .btn-vender-erva:disabled { background: #555; cursor: not-allowed; }
+        .modal-overlay.active {
+            display: flex;
+        }
 
-        .btn-fechar-mercado { width: 100%; background: #555; color: white; border: none; padding: 12px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .modal-login {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+            position: relative;
+        }
 
-        .alerta-policia { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #e74c3c; color: white; padding: 15px 25px; border-radius: 15px; font-weight: bold; z-index: 600; display: none; text-align: center; animation: pulseAlert 0.5s infinite; }
-        @keyframes pulseAlert { 0%,100% { transform: translate(-50%,-50%) scale(1); } 50% { transform: translate(-50%,-50%) scale(1.05); } }
-        .alerta-policia.ativo { display: block; }
+        .modal-grande {
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
 
-        .modal-pagamento-sucesso { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 600; justify-content: center; align-items: center; }
-        .modal-pagamento-sucesso.ativo { display: flex; }
-        .pagamento-sucesso-container { background: white; border-radius: 20px; padding: 30px; width: 90%; max-width: 320px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5); animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .pagamento-sucesso-icone { font-size: 5rem; margin-bottom: 15px; }
-        .pagamento-sucesso-titulo { font-size: 1.5rem; font-weight: bold; color: #27ae60; margin-bottom: 10px; }
-        .pagamento-sucesso-mensagem { font-size: 0.95rem; color: #666; margin-bottom: 10px; }
-        .pagamento-sucesso-prox { font-size: 0.85rem; color: #333; margin-bottom: 20px; background: #f0f9f0; padding: 10px; border-radius: 10px; }
-        .btn-fechar-sucesso { background: #27ae60; color: white; border: none; padding: 12px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        .modal-full {
+            max-width: 95%;
+            max-height: 95vh;
+            width: 95%;
+            padding: 0;
+            background: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+        }
 
-        .modal-ifood { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 500; justify-content: center; align-items: center; }
-        .modal-ifood.ativo { display: flex; }
-        .ifood-container { background: #fff; border-radius: 25px; padding: 20px; width: 90%; max-width: 380px; max-height: 80vh; overflow-y: auto; }
-        .ifood-header { background: #ea1d2c; color: white; padding: 15px; border-radius: 20px 20px 0 0; text-align: center; font-weight: bold; font-size: 1.2rem; margin: -20px -20px 15px -20px; }
-        .ifood-stats { display: flex; justify-content: space-around; margin-bottom: 15px; background: #f5f5f5; border-radius: 15px; padding: 10px; }
-        .ifood-stat { text-align: center; } .ifood-stat-valor { font-size: 1.2rem; font-weight: bold; color: #ea1d2c; } .ifood-stat-label { font-size: 0.7rem; color: #666; }
-        .ifood-corrida { background: #fff; border: 2px solid #f0f0f0; border-radius: 15px; padding: 15px; margin-bottom: 12px; }
-        .ifood-restaurante { font-weight: bold; font-size: 1rem; color: #333; }
-        .ifood-detalhes { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
-        .ifood-valor { font-size: 1.3rem; font-weight: bold; color: #2e7d32; } .ifood-distancia { font-size: 0.8rem; color: #666; }
-        .ifood-botoes { display: flex; gap: 10px; margin-top: 10px; }
-        .btn-aceitar { flex: 1; background: #27ae60; color: white; border: none; padding: 12px; border-radius: 25px; font-weight: bold; cursor: pointer; }
-        .btn-recusar { flex: 1; background: #e74c3c; color: white; border: none; padding: 12px; border-radius: 25px; font-weight: bold; cursor: pointer; }
-        .btn-recusar:disabled { background: #95a5a6; cursor: not-allowed; }
-        .ifood-bloqueado { text-align: center; padding: 20px; color: #e74c3c; font-weight: bold; }
-        .ifood-esperando { text-align: center; padding: 30px; color: #666; }
-        .ifood-esperando .pulse { animation: pulseIcon 1.5s infinite; font-size: 3rem; }
-        @keyframes pulseIcon { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        .btn-fechar-ifood { width: 100%; background: #ea1d2c; color: white; border: none; padding: 12px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .modal-login h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
 
-        .modal-trabalho { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 500; justify-content: center; align-items: center; }
-        .modal-trabalho.ativo { display: flex; }
-        .trabalho-container { background: white; border-radius: 20px; padding: 30px; width: 90%; max-width: 350px; text-align: center; }
-        .trabalho-icone-grande { font-size: 5rem; margin-bottom: 15px; animation: pulseIcon 1.5s infinite; }
-        .trabalho-titulo-modal { font-size: 1.5rem; font-weight: bold; color: #333; margin-bottom: 10px; }
-        .progresso-container { width: 100%; height: 30px; background: #e0e0e0; border-radius: 15px; overflow: hidden; margin-bottom: 15px; }
-        .progresso-barra { width: 0%; height: 100%; background: linear-gradient(90deg, #2196f3, #64b5f6); border-radius: 15px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
-        .progresso-tempo { font-size: 0.9rem; color: #666; margin-bottom: 20px; font-weight: bold; }
-        .btn-cancelar-trabalho { background: #e74c3c; color: white; border: none; padding: 12px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; }
+        .modal-login .form-group {
+            margin-bottom: 20px;
+        }
 
-        .modal-dormir { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 500; justify-content: center; align-items: center; }
-        .modal-dormir.ativo { display: flex; }
-        .dormir-container { text-align: center; color: white; } .dormir-icone { font-size: 6rem; animation: pulseIcon 2s infinite; }
-        .dormir-texto { font-size: 1.5rem; margin: 20px 0; }
-        .dormir-progresso { width: 200px; height: 20px; background: #444; border-radius: 10px; overflow: hidden; margin: 20px auto; }
-        .dormir-barra { height: 100%; background: linear-gradient(90deg, #6b6bff, #4a90d9); border-radius: 10px; }
-        .btn-acordar { background: #ff9800; color: white; border: none; padding: 12px 30px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .modal-login label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
 
-        .cenario-externo { position: relative; width: 95%; max-width: 500px; height: 70vh; display: flex; flex-direction: column; }
-        .cenario-externo.escondido { display: none; }
-        .casa { position: relative; width: 100%; height: 100%; background: #e8d5b0; border-radius: 8px 8px 24px 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); display: flex; flex-direction: column; border: 3px solid #b39264; margin-top: 50px; }
-        body.noite .casa { background: #c4b090; }
-        .telhado { position: absolute; top: -65px; left: -10px; right: -10px; height: 90px; background: #b34b3a; clip-path: polygon(50% 0%, 0% 100%, 100% 100%); box-shadow: 0 -8px 15px rgba(0,0,0,0.3); border-bottom: 4px solid #6d2f24; z-index: 1; }
-        .celular-flutuante { position: absolute; top: 15px; left: 15px; width: 60px; height: 60px; background: #1f1f1f; border-radius: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 30; border: 2px solid #b0b0b0; }
-        .celular-flutuante::before { content: "📱"; font-size: 2.2rem; }
-        .fachada { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 10px 15px 20px; }
-        .porta-janelas-container { display: flex; align-items: flex-end; justify-content: center; gap: 15px; width: 100%; }
-        .janela { width: 95px; height: 105px; border-radius: 16px 16px 8px 8px; border: 4px solid #f7e5c2; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px; padding: 6px; }
-        body.dia .janela { background: radial-gradient(circle at 20% 20%, #c8e2ff, #6f9bc0); }
-        body.noite .janela { background: radial-gradient(circle at 20% 20%, #ffe4a0, #8b7320); }
-        .vidro { width: 32px; height: 37px; border: 2px solid #f3e1b9; border-radius: 5px; }
-        .porta { width: 80px; height: 140px; background: linear-gradient(180deg, #b87c4b 0%, #6b4220 100%); border: 4px solid #e6c384; border-radius: 30px 30px 10px 10px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; }
-        .macaneta { width: 14px; height: 14px; background: radial-gradient(circle, #f9e076, #b3842c); border-radius: 50%; position: absolute; right: 12px; top: 50%; }
+        .modal-login input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
 
-        .cenario-interno { display: none; position: relative; width: 95%; max-width: 500px; height: 70vh; background: #f5e6d3; border-radius: 20px; flex-direction: column; border: 4px solid #b39264; overflow: hidden; }
-        .cenario-interno.visivel { display: flex; }
-        .parede-interna { flex: 1; background: linear-gradient(180deg, #faf0e6 0%, #f5deb3 100%); display: flex; flex-direction: column; position: relative; padding: 20px; }
-        .teto-interno { height: 40px; background: #e8d5b0; border-bottom: 3px solid #c4a67a; display: flex; align-items: center; padding: 0 15px; }
-        .chao-interno { height: 50px; background: linear-gradient(90deg, #6b4f12 0%, #8b6914 25%, #6b4f12 50%, #8b6914 75%, #6b4f12 100%); }
-        .btn-sair { position: absolute; top: 15px; right: 15px; background: #c0392b; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; z-index: 10; }
-        .mobilia-container { flex: 1; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-around; padding: 20px 10px; gap: 20px; }
-        .sofa, .cama, .fogao { width: 100px; height: 70px; border-radius: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: 0 5px 10px rgba(0,0,0,0.3); }
-        .sofa { background: #6d4c41; } .cama { background: #5c6bc0; } .fogao { background: #ef5350; }
-        .tv { width: 100px; height: 65px; background: #212121; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+        .modal-login input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
 
-        .tela-celular { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85vw; max-width: 320px; height: 75vh; max-height: 550px; background: white; border-radius: 35px; box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 0 5px #3a3a3a, 0 0 0 8px #1e1e1e; z-index: 100; flex-direction: column; padding: 10px; overflow: hidden; }
-        .tela-celular.ativa { display: flex; }
-        .tela-topo { display: flex; justify-content: space-between; padding: 6px 12px; background: #eaeaea; border-radius: 26px 26px 14px 14px; font-size: 0.75rem; font-weight: bold; }
-        .tela-apps { flex: 1; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 15px; padding: 15px 10px; justify-content: center; background: #f9f9f9; border-radius: 18px; margin: 5px 0; overflow-y: auto; }
-        .icone-app { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; width: 60px; }
-        .icone-img { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 4px 8px rgba(0,0,0,0.3); }
-        .icone-app span { font-size: 0.7rem; font-weight: 600; color: #1f1f1f; text-align: center; }
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
 
-        .whatsapp-aba, .banco-aba, .cursos-aba, .contas-aba { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 35px; flex-direction: column; z-index: 110; padding: 10px; }
-        .whatsapp-aba { background: #ece5dd; }
-        .banco-aba { background: linear-gradient(180deg, #1a237e 0%, #283593 40%, #e8eaf6 40%, #f5f5f5 100%); }
-        .cursos-aba { background: #fff; }
-        .contas-aba { background: #f5f5f5; }
-        .whatsapp-aba.mostrar, .banco-aba.mostrar, .cursos-aba.mostrar, .contas-aba.mostrar { display: flex; }
+        .btn-fechar {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #999;
+            z-index: 10;
+        }
 
-        .wa-header, .banco-header, .cursos-header, .contas-header { padding: 12px; border-radius: 26px 26px 12px 12px; font-weight: bold; font-size: 1rem; color: white; display: flex; align-items: center; gap: 8px; }
-        .wa-header { background: #075e54; } .banco-header { background: #1a237e; } .cursos-header { background: #e67e22; } .contas-header { background: #c62828; }
+        .erro-login {
+            color: #f44336;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
 
-        .wa-trabalhos, .banco-conteudo, .cursos-conteudo, .contas-conteudo { flex: 1; padding: 10px 5px; overflow-y: auto; }
+        /* Header */
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
 
-        .trabalho-card { background: white; border-radius: 12px; padding: 14px; display: flex; align-items: center; gap: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
-        .trabalho-card:active { transform: scale(0.98); } .trabalho-card.bloqueado { opacity: 0.6; cursor: not-allowed; }
-        .trabalho-icone { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; flex-shrink: 0; }
-        .entregador-icone { background: #ff9800; } .mecanico-icone { background: #2196f3; } .informatica-icone { background: #4caf50; }
-        .trabalho-info { flex: 1; } .trabalho-titulo { font-weight: bold; font-size: 0.9rem; color: #333; } .trabalho-descricao { font-size: 0.7rem; color: #666; }
-        .trabalho-salario { font-size: 0.8rem; color: #2e7d32; font-weight: 600; } .trabalho-requisito { font-size: 0.65rem; color: #e67e22; font-weight: 600; }
-        .trabalho-status { font-size: 0.65rem; font-weight: 600; margin-top: 2px; } .status-livre { color: #25d366; } .status-bloqueado { color: #e74c3c; }
+        header h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
 
-        .banco-saldo-card { background: linear-gradient(135deg, #1a237e, #283593); border-radius: 20px; padding: 25px; margin-bottom: 15px; color: white; box-shadow: 0 10px 30px rgba(26,35,126,0.3); position: relative; overflow: hidden; }
-        .banco-saldo-card::before { content: ''; position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%; }
-        .banco-saldo-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; opacity: 0.8; margin-bottom: 5px; }
-        .banco-saldo-valor { font-size: 2.5rem; font-weight: bold; position: relative; z-index: 1; }
-        .banco-transacoes { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
-        .banco-transacoes-titulo { font-weight: bold; color: #333; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
-        .transacao-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0f0f0; }
-        .transacao-icone { width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
-        .transacao-credito { background: #e8f5e9; } .transacao-debito { background: #ffebee; }
-        .transacao-info { flex: 1; } .transacao-nome { font-weight: 600; font-size: 0.8rem; color: #333; } .transacao-data { font-size: 0.65rem; color: #999; }
-        .transacao-valor { font-weight: bold; font-size: 0.85rem; } .valor-credito { color: #2e7d32; } .valor-debito { color: #c62828; }
+        .search-box {
+            position: relative;
+            max-width: 400px;
+            margin: 0 auto;
+        }
 
-        .curso-card { background: white; border-radius: 12px; padding: 14px; margin-bottom: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.2s; }
-        .curso-card:active { transform: scale(0.98); } .curso-card.adquirido { opacity: 0.7; cursor: default; border: 2px solid #4caf50; background: #f0f9f0; }
-        .curso-icone { font-size: 2.5rem; width: 55px; text-align: center; flex-shrink: 0; } .curso-info { flex: 1; }
-        .curso-titulo { font-weight: bold; font-size: 0.9rem; color: #333; } .curso-descricao { font-size: 0.7rem; color: #666; }
-        .curso-valor { font-size: 0.8rem; font-weight: bold; color: #e67e22; margin-top: 3px; }
-        .curso-status { font-size: 0.7rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; display: inline-block; margin-top: 5px; }
-        .curso-pago { background: #fff3e0; color: #e67e22; } .curso-adquirido-status { background: #c8e6c9; color: #2e7d32; }
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px 15px 45px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            outline: none;
+        }
 
-        .conta-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; transition: all 0.4s ease; border-left: 4px solid #e74c3c; }
-        .conta-card.removendo { opacity: 0; transform: translateX(100px); margin-bottom: -60px; padding: 0 15px; max-height: 0; overflow: hidden; }
-        .conta-icone { font-size: 2.5rem; width: 50px; text-align: center; flex-shrink: 0; } .conta-info { flex: 1; }
-        .conta-nome { font-weight: bold; font-size: 0.95rem; color: #333; } .conta-descricao { font-size: 0.7rem; color: #666; margin-top: 2px; }
-        .conta-vencimento { font-size: 0.75rem; color: #e74c3c; font-weight: 600; margin-top: 3px; }
-        .conta-valor { font-weight: bold; font-size: 1rem; color: #c62828; margin-top: 3px; }
-        .btn-pagar { background: #27ae60; color: white; border: none; padding: 10px 18px; border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 0.85rem; transition: 0.2s; }
-        .sem-contas { text-align: center; padding: 40px 20px; } .sem-contas-icone { font-size: 5rem; margin-bottom: 15px; }
-        .sem-contas-titulo { font-weight: bold; color: #27ae60; font-size: 1.2rem; margin-bottom: 10px; }
-        .prox-conta { background: #f0f9f0; border-radius: 10px; padding: 12px; margin-top: 8px; font-size: 0.8rem; color: #333; text-align: left; }
+        .search-box i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
 
-        .wa-voltar, .banco-voltar, .cursos-voltar, .contas-voltar { padding: 12px; border-radius: 25px; font-weight: bold; color: white; cursor: pointer; margin-top: 8px; border: none; font-size: 0.9rem; }
-        .wa-voltar { background: #128c7e; } .banco-voltar { background: #1a237e; } .cursos-voltar { background: #e67e22; } .contas-voltar { background: #c62828; }
+        /* Tabs */
+        .tabs-navegacao {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
 
-        .fechar-celular { position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%); background: #222; color: white; border: none; padding: 8px 20px; border-radius: 30px; font-weight: bold; cursor: pointer; z-index: 120; }
-        .legenda { color: white; font-weight: bold; font-size: 0.9rem; text-align: center; margin-top: 5px; background: rgba(0,0,0,0.4); padding: 6px 18px; border-radius: 20px; }
+        .tabs-navegacao.active {
+            display: flex;
+        }
 
-        @media (max-width: 360px) { .janela { width: 75px; height: 90px; } .porta { width: 65px; height: 120px; } }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 10px;
+            color: #666;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            background: transparent;
+            font-size: 14px;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-empresa.active {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        /* Páginas */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Cards de Vagas */
+        .vagas-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .vaga-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            animation: slideUp 0.5s ease;
+        }
+
+        .vaga-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .vaga-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .empresa-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 24px;
+            margin-right: 15px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .empresa-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .empresa-info h3 {
+            color: #333;
+            font-size: 18px;
+        }
+
+        .vaga-titulo {
+            color: #667eea;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .vaga-descricao {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            white-space: pre-line;
+        }
+
+        .vaga-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tag {
+            background: #f0f0f0;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .tag-local {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .tag-tipo {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .btn-whatsapp {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #25D366;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .btn-whatsapp:hover {
+            background: #20bd5a;
+            transform: scale(1.02);
+        }
+
+        .btn-curriculo {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-curriculo:hover {
+            background: #0056b3;
+            transform: scale(1.02);
+        }
+
+        .btn-whatsapp i, .btn-curriculo i {
+            margin-right: 8px;
+        }
+
+        /* Admin Styles */
+        .admin-section, .empresa-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .admin-section h2, .empresa-section h2 {
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Upload de Foto */
+        .upload-foto {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .preview-foto {
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px dashed #ccc;
+        }
+
+        .preview-foto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-foto i {
+            font-size: 40px;
+            color: #ccc;
+        }
+
+        .btn-upload {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            border: none;
+            transition: background 0.3s ease;
+        }
+
+        .btn-upload:hover {
+            background: #5a6fd6;
+        }
+
+        .btn-remover-foto {
+            background: #ff4757;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 12px;
+            border: none;
+            margin-top: 5px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .btn-submit-empresa {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        /* Lista de Vagas Admin */
+        .vagas-list {
+            margin-top: 40px;
+        }
+
+        .admin-vaga-item {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+            display: flex;
+            gap: 15px;
+        }
+
+        .admin-vaga-foto {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .admin-vaga-foto img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .admin-vaga-info {
+            flex: 1;
+        }
+
+        .admin-vaga-item h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .admin-vaga-item p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .btn-excluir {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+            margin-right: 5px;
+        }
+
+        .btn-excluir:hover {
+            background: #ee3a4d;
+        }
+
+        .btn-ver-curriculos {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn-ver-curriculos:hover {
+            background: #138496;
+        }
+
+        .btn-logout {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 20px;
+            float: right;
+        }
+
+        /* Currículos */
+        .curriculos-list {
+            margin-top: 20px;
+        }
+
+        .curriculo-item {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.3s ease;
+        }
+
+        .curriculo-item:hover {
+            background: #bbdefb;
+        }
+
+        .curriculo-info {
+            flex: 1;
+        }
+
+        .curriculo-info strong {
+            color: #1976d2;
+            font-size: 16px;
+        }
+
+        .curriculo-info small {
+            color: #666;
+            display: block;
+            margin-top: 3px;
+        }
+
+        .btn-visualizar {
+            background: #28a745;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            margin-right: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .btn-visualizar:hover {
+            background: #218838;
+        }
+
+        .btn-download {
+            background: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            transition: background 0.3s ease;
+        }
+
+        .btn-download:hover {
+            background: #0056b3;
+        }
+
+        /* Empresas Cadastradas */
+        .empresa-cadastrada-item {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #28a745;
+        }
+
+        .no-results {
+            text-align: center;
+            color: white;
+            padding: 50px 20px;
+            font-size: 18px;
+        }
+
+        .no-results i {
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: #4caf50;
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            z-index: 1001;
+            animation: slideInRight 0.3s ease;
+            font-weight: 500;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        /* ============ VISUALIZADOR DE CURRÍCULO ============ */
+        .visualizador-header {
+            background: white;
+            padding: 20px;
+            border-radius: 20px 20px 0 0;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .visualizador-header h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .info-candidato-header {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-item {
+            background: #f0f8ff;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border-left: 4px solid #007bff;
+        }
+
+        .info-item strong {
+            color: #007bff;
+            display: block;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+        .info-item span {
+            color: #333;
+            font-size: 14px;
+        }
+
+        .info-item-whatsapp {
+            border-left-color: #25D366;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .info-item-whatsapp:hover {
+            background: #e8f5e9;
+            transform: scale(1.02);
+        }
+
+        .info-item-whatsapp strong {
+            color: #25D366;
+        }
+
+        .info-item-whatsapp::after {
+            content: '📱 Clique para chamar no WhatsApp';
+            position: absolute;
+            bottom: -25px;
+            left: 0;
+            font-size: 10px;
+            color: #25D366;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .info-item-whatsapp:hover::after {
+            opacity: 1;
+        }
+
+        .visualizador-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f5f5f5;
+            padding: 8px 15px;
+            border-radius: 25px;
+        }
+
+        .btn-zoom {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: none;
+            background: white;
+            color: #333;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-zoom:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .zoom-level {
+            font-weight: 600;
+            color: #333;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .btn-whatsapp-visualizador {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-whatsapp-visualizador:hover {
+            background: #20bd5a;
+            transform: scale(1.05);
+        }
+
+        .btn-fechar-visualizador {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-fechar-visualizador:hover {
+            background: #ee3a4d;
+        }
+
+        .visualizador-content {
+            flex: 1;
+            overflow: auto;
+            background: #e0e0e0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 20px;
+            min-height: 400px;
+            max-height: 60vh;
+        }
+
+        .documento-visualizacao {
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+            transform-origin: top center;
+        }
+
+        .documento-visualizacao img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .documento-visualizacao iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+
+        /* Ícone do WhatsApp pulsando */
+        .pulse-whatsapp {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(37, 211, 102, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 1.5em; }
+            .vaga-card { padding: 20px; }
+            .admin-section, .empresa-section { padding: 20px; }
+            .modal-login { padding: 25px; }
+            .curriculo-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            .info-candidato-header {
+                grid-template-columns: 1fr;
+            }
+            .visualizador-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .toolbar-left, .toolbar-right {
+                flex-direction: column;
+                width: 100%;
+            }
+            .btn-whatsapp-visualizador, .btn-fechar-visualizador {
+                width: 100%;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
-<body class="dia">
-    <div class="barras-status">
-        <div class="barra-status-item"><span class="barra-status-icone">🍔</span><div class="barra-status-container"><div class="barra-status-preenchimento barra-fome" id="barraFome" style="width:100%"></div></div><span class="barra-status-texto" id="textoFome">100%</span></div>
-        <div class="barra-status-item"><span class="barra-status-icone">😴</span><div class="barra-status-container"><div class="barra-status-preenchimento barra-sono" id="barraSono" style="width:100%"></div></div><span class="barra-status-texto" id="textoSono">100%</span></div>
+<body>
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <!-- Botões Discretos -->
+    <div class="botoes-discretos">
+        <button class="btn-discreto btn-adm" id="btnAdm" title="Painel ADM">
+            <i class="fas fa-lock"></i>
+        </button>
+        <button class="btn-discreto btn-empresa" id="btnEmpresa" title="Painel Empresa">
+            <i class="fas fa-building"></i>
+        </button>
     </div>
-    <div class="barra-data" id="barraData"></div>
-    <div class="barra-dinheiro"><span>💰</span><span id="saldo">R$ 0,00</span></div>
 
-    <button class="btn-salvar" id="btnSalvar" title="Salvar progresso">💾 Salvar</button>
-    <div class="indicador-salvamento" id="indicadorSalvamento">✅ Salvo com sucesso!</div>
-
-    <div class="modal-prisao" id="modalPrisao"><div class="prisao-container"><div class="prisao-icone">🚔</div><div class="prisao-titulo">VOCÊ FOI PRESO!</div><div class="prisao-mensagem">A polícia encontrou ervas ilegais com você!</div><div class="prisao-tempo" id="prisaoTempo">⏱️ 5:00</div><div class="prisao-progresso"><div class="prisao-barra" id="prisaoBarra" style="width:0%"></div></div><p style="color:#888;">Aguarde 5 minutos para ser liberado...</p></div></div>
-    <div class="alerta-policia" id="alertaPolicia">🚔 POLÍCIA!<br>Bateram na sua porta!</div>
-
-    <div class="modal-faccao" id="modalFaccao"><div class="faccao-container"><div class="faccao-header">🏴‍☠️ Facções Criminosas</div><div id="faccaoConteudo"></div><button class="btn-fechar-faccao" id="btnFecharFaccao">🔙 Sair</button></div></div>
-
-    <div class="modal-mercado" id="modalMercado">
-        <div class="mercado-container">
-            <div class="mercado-header">🌿 WhatsApp do Mercado Negro</div>
-            <div class="mercado-stats">
-                <div class="mercado-stat"><div class="mercado-stat-valor" id="ervaEstoque">0g</div><div class="mercado-stat-label">Estoque</div></div>
-                <div class="mercado-stat"><div class="mercado-stat-valor" id="ervaLucro">R$ 0,00</div><div class="mercado-stat-label">Lucro Hoje</div></div>
-                <div class="mercado-stat"><div class="mercado-stat-valor" id="ervaComprasHoje">0</div><div class="mercado-stat-label" id="ervaLimiteLabel">Compras</div></div>
-            </div>
-            <div class="erva-card">
-                <div class="erva-nome">🌿 Erva Natural</div>
-                <div class="erva-descricao">Produto de alta qualidade. Risco: Médio</div>
-                <div class="erva-precos"><span class="erva-compra">Compra: R$ 100,00/g</span><span class="erva-venda">Venda: R$ 300,00/g</span></div>
-                <div class="erva-quantidade" style="margin-top:5px;">Seu estoque: <span id="ervaQtd">0g</span></div>
-                <div class="erva-limite" id="ervaLimiteTexto"></div>
-                <div class="erva-botoes">
-                    <button class="btn-comprar-erva" id="btnComprarErva" onclick="comprarErva()">🛒 Comprar 1g</button>
-                    <button class="btn-vender-erva" id="btnVenderErva" onclick="venderErva()" disabled>💸 Vender 1g</button>
+    <!-- Modal Login ADM -->
+    <div class="modal-overlay" id="modalLoginADM">
+        <div class="modal-login">
+            <button class="btn-fechar" onclick="fecharModal('modalLoginADM')">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2><i class="fas fa-user-shield"></i> Acesso ADM</h2>
+            <form id="formLoginADM">
+                <div class="form-group">
+                    <label>Login</label>
+                    <input type="text" id="loginADM" placeholder="Digite o login" required>
                 </div>
-            </div>
-            <button class="btn-fechar-mercado" id="btnFecharMercado">🔙 Sair do Mercado</button>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="senhaADM" placeholder="Digite a senha" required>
+                </div>
+                <div class="erro-login" id="erroLoginADM">
+                    <i class="fas fa-exclamation-circle"></i> Login ou senha incorretos!
+                </div>
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+            </form>
         </div>
     </div>
 
-    <div class="modal-pagamento-sucesso" id="modalPagamentoSucesso"><div class="pagamento-sucesso-container"><div class="pagamento-sucesso-icone">✅</div><div class="pagamento-sucesso-titulo" id="pagamentoTitulo"></div><div class="pagamento-sucesso-mensagem" id="pagamentoMensagem"></div><div class="pagamento-sucesso-prox" id="pagamentoProx"></div><button class="btn-fechar-sucesso" id="btnFecharSucesso">OK</button></div></div>
-    <div class="modal-ifood" id="modalIfood"><div class="ifood-container"><div class="ifood-header">🛵 iFood Entregador</div><div class="ifood-stats"><div class="ifood-stat"><div class="ifood-stat-valor" id="ifoodGanhos">R$ 0,00</div><div class="ifood-stat-label">Ganhos</div></div><div class="ifood-stat"><div class="ifood-stat-valor" id="ifoodCorridas">0</div><div class="ifood-stat-label">Corridas</div></div><div class="ifood-stat"><div class="ifood-stat-valor" id="ifoodRecusas">0/5</div><div class="ifood-stat-label">Recusas</div></div></div><div id="ifoodConteudo"></div><button class="btn-fechar-ifood" id="btnFecharIfood">🔙 Sair</button></div></div>
-    <div class="modal-trabalho" id="modalTrabalho"><div class="trabalho-container"><div class="trabalho-icone-grande" id="trabalhoIcone">🔧</div><div class="trabalho-titulo-modal" id="trabalhoTituloModal"></div><div class="progresso-container"><div class="progresso-barra" id="progressoBarra">0%</div></div><div class="progresso-tempo" id="progressoTempo">⏱️ 60s</div><button class="btn-cancelar-trabalho" id="btnCancelarTrabalho">❌ Cancelar</button></div></div>
-    <div class="modal-dormir" id="modalDormir"><div class="dormir-container"><div class="dormir-icone">😴</div><div class="dormir-texto">Dormindo... 💤</div><div class="dormir-progresso"><div class="dormir-barra" id="dormirBarra" style="width:0%"></div></div><div class="dormir-texto" id="dormirTempo">⏱️ 5s</div><button class="btn-acordar" id="btnAcordar">⏰ Acordar</button></div></div>
+    <!-- Modal Login Empresa -->
+    <div class="modal-overlay" id="modalLoginEmpresa">
+        <div class="modal-login">
+            <button class="btn-fechar" onclick="fecharModal('modalLoginEmpresa')">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2><i class="fas fa-building"></i> Acesso Empresa</h2>
+            <form id="formLoginEmpresa">
+                <div class="form-group">
+                    <label>Login</label>
+                    <input type="text" id="loginEmpresa" placeholder="Digite o login" required>
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="senhaEmpresa" placeholder="Digite a senha" required>
+                </div>
+                <div class="erro-login" id="erroLoginEmpresa">
+                    <i class="fas fa-exclamation-circle"></i> Login ou senha incorretos!
+                </div>
+                <button type="submit" class="btn-login" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+            </form>
+        </div>
+    </div>
 
-    <div class="container-fullscreen">
-        <div class="cenario-externo" id="cenarioExterno"><div class="casa"><div class="telhado"></div><div class="celular-flutuante" id="btnCelularExterno"></div><div class="fachada"><div class="porta-janelas-container"><div class="janela"><div class="vidro"></div><div class="vidro"></div><div class="vidro"></div><div class="vidro"></div></div><div class="porta" id="portaPrincipal"><div class="macaneta"></div></div><div class="janela"><div class="vidro"></div><div class="vidro"></div><div class="vidro"></div><div class="vidro"></div></div></div></div></div></div>
-        <div class="cenario-interno" id="cenarioInterno"><button class="btn-sair" id="btnSair">🚪 Sair</button><div class="teto-interno"><span>💡</span></div><div class="parede-interna"><div class="celular-flutuante" id="btnCelularInterno" style="position:absolute;top:15px;left:15px;"></div><div class="mobilia-container"><div class="sofa">🛋️</div><div class="cama" id="btnCama">🛏️</div><div class="fogao" id="btnFogao">🍳</div><div class="tv">📺</div></div></div><div class="chao-interno"></div></div>
-        <div class="legenda">🏡 Porta | 📱 Celular | 🛏️ Dormir | 🍳 Comer | 💾 Salvar</div>
+    <!-- Modal Envio de Currículo -->
+    <div class="modal-overlay" id="modalCurriculo">
+        <div class="modal-login">
+            <button class="btn-fechar" onclick="fecharModal('modalCurriculo')">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2><i class="fas fa-file-pdf"></i> Enviar Currículo</h2>
+            <form id="formCurriculo">
+                <div class="form-group">
+                    <label>Seu Nome *</label>
+                    <input type="text" id="nomeCandidato" required placeholder="Digite seu nome completo">
+                </div>
+                <div class="form-group">
+                    <label>Seu WhatsApp *</label>
+                    <input type="text" id="whatsappCandidato" required placeholder="Ex: 11999999999">
+                </div>
+                <div class="form-group">
+                    <label>Seu Email</label>
+                    <input type="email" id="emailCandidato" placeholder="Ex: seuemail@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Currículo (PDF ou Imagem) *</label>
+                    <input type="file" id="arquivoCurriculo" accept=".pdf,.jpg,.jpeg,.png,.gif,.bmp,.webp" required>
+                </div>
+                <input type="hidden" id="vagaIdCurriculo">
+                <button type="submit" class="btn-login" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);">
+                    <i class="fas fa-paper-plane"></i> Enviar Currículo
+                </button>
+            </form>
+        </div>
+    </div>
 
-        <div class="tela-celular" id="telaCelular">
-            <div class="tela-topo"><span class="hora-real" id="horaReal">--:--</span><span>📶 🔋</span></div>
-            <div class="tela-apps">
-                <div class="icone-app" id="iconeWhatsApp"><div class="icone-img" style="background:radial-gradient(circle at 30% 30%,#5fe68c,#128c7e)">💬</div><span>WhatsApp</span></div>
-                <div class="icone-app" id="iconeBanco"><div class="icone-img" style="background:radial-gradient(circle at 30% 30%,#5b9bd5,#1e5a99)">🏦</div><span>Banco</span></div>
-                <div class="icone-app" id="iconeCursos"><div class="icone-img" style="background:radial-gradient(circle at 30% 30%,#f0a04b,#e67e22)">📚</div><span>Cursos</span></div>
-                <div class="icone-app" id="iconeContas"><div class="icone-img" style="background:radial-gradient(circle at 30% 30%,#ef5350,#c62828)">🧾</div><span>Contas</span></div>
-                <div class="icone-app" id="iconeFaccao"><div class="icone-img" style="background:radial-gradient(circle at 30% 30%,#8b0000,#b71c1c)">🏴‍☠️</div><span>Facção</span></div>
-                <div class="icone-app" id="iconeMercado"><div class="icone-img" style="background:radial-gradient(circle at 30% 30%,#1b5e20,#2e7d32)">🌿</div><span>Mercado</span></div>
+    <!-- Modal Visualizar Currículos -->
+    <div class="modal-overlay" id="modalVerCurriculos">
+        <div class="modal-login modal-grande">
+            <button class="btn-fechar" onclick="fecharModal('modalVerCurriculos')">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2><i class="fas fa-folder-open"></i> Currículos Recebidos</h2>
+            <div id="listaCurriculos" style="max-height: 500px; overflow-y: auto;">
+                <p style="text-align: center; color: #999;">Carregando...</p>
             </div>
+        </div>
+    </div>
 
-            <div class="whatsapp-aba" id="whatsappAba"><div class="wa-header">💼 Trabalhos Disponíveis</div><div class="wa-trabalhos" id="waTrabalhos"></div><button class="wa-voltar" id="btnVoltarWhatsApp">← Voltar</button></div>
-            <div class="banco-aba" id="bancoAba"><div class="banco-header">🏦 Meu Banco</div><div class="banco-conteudo"><div class="banco-saldo-card"><div class="banco-saldo-label">Saldo Disponível</div><div class="banco-saldo-valor" id="bancoSaldoValor">R$ 0,00</div></div><div class="banco-transacoes"><div class="banco-transacoes-titulo">📋 Últimas Transações</div><div id="listaTransacoes">Nenhuma transação</div></div></div><button class="banco-voltar" id="btnVoltarBanco">← Voltar</button></div>
-            <div class="cursos-aba" id="cursosAba"><div class="cursos-header">📚 Cursos Disponíveis</div><div class="cursos-conteudo" id="cursosConteudo"></div><button class="cursos-voltar" id="btnVoltarCursos">← Voltar</button></div>
-            <div class="contas-aba" id="contasAba"><div class="contas-header">🧾 Contas a Pagar</div><div class="contas-conteudo" id="contasConteudo"></div><button class="contas-voltar" id="btnVoltarContas">← Voltar</button></div>
-            <button class="fechar-celular" id="btnFecharCelular">Fechar Celular</button>
+    <!-- Modal Visualizador de Currículo -->
+    <div class="modal-overlay" id="modalVisualizador">
+        <div class="modal-login modal-full">
+            <div class="visualizador-header">
+                <h2><i class="fas fa-file-alt"></i> Visualizar Currículo</h2>
+                
+                <div class="info-candidato-header" id="infoCandidatoHeader">
+                    <!-- Preenchido dinamicamente -->
+                </div>
+                
+                <div class="visualizador-toolbar">
+                    <div class="toolbar-left">
+                        <div class="zoom-controls">
+                            <button class="btn-zoom" onclick="alterarZoom(-10)" title="Diminuir zoom">
+                                <i class="fas fa-search-minus"></i>
+                            </button>
+                            <span class="zoom-level" id="zoomLevel">100%</span>
+                            <button class="btn-zoom" onclick="alterarZoom(10)" title="Aumentar zoom">
+                                <i class="fas fa-search-plus"></i>
+                            </button>
+                            <button class="btn-zoom" onclick="resetZoom()" title="Resetar zoom">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        
+                        <a href="#" id="btnWhatsAppCandidato" class="btn-whatsapp-visualizador pulse-whatsapp" target="_blank" title="Chamar no WhatsApp">
+                            <i class="fab fa-whatsapp"></i> Chamar Candidato
+                        </a>
+                    </div>
+                    
+                    <div class="toolbar-right">
+                        <button class="btn-fechar-visualizador" onclick="fecharVisualizador()">
+                            <i class="fas fa-times"></i> Sair
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="visualizador-content" id="visualizadorContent">
+                <!-- Documento carregado dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs ADM -->
+    <div class="tabs-navegacao" id="tabsADM">
+        <button class="tab active" onclick="mudarPaginaAdmin('vagas')">
+            <i class="fas fa-briefcase"></i> Vagas
+        </button>
+        <button class="tab" onclick="mudarPaginaAdmin('admin')">
+            <i class="fas fa-cogs"></i> Gerenciar Vagas
+        </button>
+        <button class="tab" onclick="mudarPaginaAdmin('empresas')">
+            <i class="fas fa-building"></i> Empresas
+        </button>
+    </div>
+
+    <!-- Tabs Empresa -->
+    <div class="tabs-navegacao" id="tabsEmpresa">
+        <button class="tab tab-empresa active" onclick="mudarPaginaEmpresa('vagas')">
+            <i class="fas fa-briefcase"></i> Vagas
+        </button>
+        <button class="tab tab-empresa" onclick="mudarPaginaEmpresa('painel')">
+            <i class="fas fa-cogs"></i> Meu Painel
+        </button>
+    </div>
+
+    <!-- Página de Vagas Pública -->
+    <div id="page-vagas" class="page active">
+        <div class="container">
+            <header>
+                <h1><i class="fas fa-briefcase"></i> Vagas Disponíveis</h1>
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Buscar vagas...">
+                    <i class="fas fa-search"></i>
+                </div>
+            </header>
+            <div class="vagas-grid" id="vagasContainer"></div>
+            <div id="noResults" class="no-results" style="display: none;">
+                <i class="fas fa-search"></i>
+                <p>Nenhuma vaga encontrada</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Página Admin - Gerenciar Vagas -->
+    <div id="page-admin" class="page">
+        <div class="container">
+            <button class="btn-logout" onclick="logoutADM()">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+            <div class="admin-section">
+                <h2><i class="fas fa-plus-circle"></i> Cadastrar Nova Vaga</h2>
+                <form id="formVaga">
+                    <div class="form-group">
+                        <label>Foto da Empresa</label>
+                        <div class="upload-foto">
+                            <div class="preview-foto" id="previewFoto">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div>
+                                <input type="file" id="uploadFoto" accept="image/*" style="display: none;">
+                                <button type="button" class="btn-upload" onclick="document.getElementById('uploadFoto').click()">
+                                    <i class="fas fa-camera"></i> Escolher Foto
+                                </button>
+                                <br>
+                                <button type="button" class="btn-remover-foto" id="btnRemoverFoto" style="display: none;" onclick="removerFoto()">
+                                    <i class="fas fa-trash"></i> Remover
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Nome da Empresa *</label>
+                        <input type="text" id="empresa" required placeholder="Ex: Tech Solutions Ltda">
+                    </div>
+                    <div class="form-group">
+                        <label>WhatsApp *</label>
+                        <input type="text" id="whatsapp" required placeholder="Ex: 11999999999">
+                    </div>
+                    <div class="form-group">
+                        <label>Título da Vaga *</label>
+                        <input type="text" id="titulo" required placeholder="Ex: Desenvolvedor Front-end">
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição *</label>
+                        <textarea id="descricao" required placeholder="Descreva os requisitos e benefícios..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Localização</label>
+                        <input type="text" id="localizacao" placeholder="Ex: São Paulo - SP">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Contrato</label>
+                        <select id="tipo">
+                            <option value="CLT">CLT</option>
+                            <option value="PJ">PJ</option>
+                            <option value="Freelancer">Freelancer</option>
+                            <option value="Estágio">Estágio</option>
+                            <option value="Temporário">Temporário</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-save"></i> Cadastrar Vaga
+                    </button>
+                </form>
+                <div class="vagas-list">
+                    <h2><i class="fas fa-list"></i> Vagas Cadastradas</h2>
+                    <div id="vagasAdminList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Página Admin - Gerenciar Empresas -->
+    <div id="page-empresas" class="page">
+        <div class="container">
+            <button class="btn-logout" onclick="logoutADM()">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+            <div class="admin-section">
+                <h2><i class="fas fa-plus-circle"></i> Cadastrar Empresa</h2>
+                <form id="formEmpresa">
+                    <div class="form-group">
+                        <label>Nome da Empresa *</label>
+                        <input type="text" id="nomeEmpresa" required placeholder="Nome da empresa">
+                    </div>
+                    <div class="form-group">
+                        <label>Login da Empresa *</label>
+                        <input type="text" id="loginEmpresaCadastro" required placeholder="Login para acesso">
+                    </div>
+                    <div class="form-group">
+                        <label>Senha da Empresa *</label>
+                        <input type="password" id="senhaEmpresaCadastro" required placeholder="Senha para acesso">
+                    </div>
+                    <div class="form-group">
+                        <label>WhatsApp da Empresa</label>
+                        <input type="text" id="whatsappEmpresa" placeholder="Ex: 11999999999">
+                    </div>
+                    <button type="submit" class="btn-submit btn-submit-empresa">
+                        <i class="fas fa-save"></i> Cadastrar Empresa
+                    </button>
+                </form>
+                <div class="vagas-list">
+                    <h2><i class="fas fa-list"></i> Empresas Cadastradas</h2>
+                    <div id="empresasList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Página Painel Empresa -->
+    <div id="page-painel-empresa" class="page">
+        <div class="container">
+            <button class="btn-logout" onclick="logoutEmpresa()">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+            <div class="empresa-section">
+                <h2><i class="fas fa-plus-circle"></i> Cadastrar Vaga</h2>
+                <form id="formVagaEmpresa">
+                    <div class="form-group">
+                        <label>Foto da Empresa</label>
+                        <div class="upload-foto">
+                            <div class="preview-foto" id="previewFotoEmpresa">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <div>
+                                <input type="file" id="uploadFotoEmpresa" accept="image/*" style="display: none;">
+                                <button type="button" class="btn-upload" onclick="document.getElementById('uploadFotoEmpresa').click()">
+                                    <i class="fas fa-camera"></i> Escolher Foto
+                                </button>
+                                <br>
+                                <button type="button" class="btn-remover-foto" id="btnRemoverFotoEmpresa" style="display: none;" onclick="removerFotoEmpresa()">
+                                    <i class="fas fa-trash"></i> Remover
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Título da Vaga *</label>
+                        <input type="text" id="tituloEmpresa" required placeholder="Ex: Desenvolvedor Front-end">
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição *</label>
+                        <textarea id="descricaoEmpresa" required placeholder="Descreva os requisitos e benefícios..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Localização</label>
+                        <input type="text" id="localizacaoEmpresa" placeholder="Ex: São Paulo - SP">
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Contrato</label>
+                        <select id="tipoEmpresa">
+                            <option value="CLT">CLT</option>
+                            <option value="PJ">PJ</option>
+                            <option value="Freelancer">Freelancer</option>
+                            <option value="Estágio">Estágio</option>
+                            <option value="Temporário">Temporário</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-submit btn-submit-empresa">
+                        <i class="fas fa-save"></i> Cadastrar Vaga
+                    </button>
+                </form>
+                <div class="vagas-list">
+                    <h2><i class="fas fa-list"></i> Minhas Vagas</h2>
+                    <div id="vagasEmpresaList"></div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        (function() {
-            const SAVE_KEY = 'casa_interativa_save_v7';
+        // ============ DADOS GLOBAIS ============
+        let vagas = JSON.parse(localStorage.getItem('vagas')) || [];
+        let empresas = JSON.parse(localStorage.getItem('empresas')) || [];
+        let curriculos = JSON.parse(localStorage.getItem('curriculos')) || [];
+        let fotoBase64 = '';
+        let fotoBase64Empresa = '';
+        let logadoADM = sessionStorage.getItem('logadoADM') === 'true';
+        let logadoEmpresa = sessionStorage.getItem('logadoEmpresa') === 'true';
+        let empresaAtual = JSON.parse(sessionStorage.getItem('empresaAtual')) || null;
+        let zoomLevel = 100;
+        let curriculoAtual = null;
+
+        // ============ FUNÇÕES DE MODAL ============
+        function abrirModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function fecharModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function mostrarToast(mensagem, tipo = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo}`;
+            toast.textContent = mensagem;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============ VISUALIZADOR DE CURRÍCULO ============
+        function abrirVisualizador(curriculo) {
+            curriculoAtual = curriculo;
+            zoomLevel = 100;
             
-            function salvarJogo() {
-                const saveData = {
-                    saldo, temCNH, temCursoInformatica, fome, sono,
-                    cursosAdquiridos, transacoes: transacoes.slice(0, 30),
-                    contasAtivas: contasAtivas.map(c => ({...c, vencimento: c.vencimento.toISOString()})),
-                    contasPagas: contasPagas.map(c => ({...c, dataReativacao: c.dataReativacao.toISOString()})),
-                    ultimoDiaIfood, ifoodRecusas, ifoodCorridasFeitas, ifoodGanhos, ifoodBloqueado,
-                    ervaEstoque, ervaLucro, preso, tempoPrisaoRestante,
-                    faccaoAtual, ervaComprasHoje, ultimoDiaErva, timestamp: Date.now()
-                };
-                try { localStorage.setItem(SAVE_KEY, JSON.stringify(saveData)); mostrarIndicadorSalvamento(); } catch(e) {}
-            }
-
-            function carregarJogo() {
-                try {
-                    const saved = localStorage.getItem(SAVE_KEY);
-                    if (!saved) return false;
-                    const data = JSON.parse(saved);
-                    saldo = data.saldo || 0; temCNH = data.temCNH || false;
-                    temCursoInformatica = data.temCursoInformatica || false;
-                    fome = data.fome || 100; sono = data.sono || 100;
-                    cursosAdquiridos = data.cursosAdquiridos || [];
-                    transacoes = data.transacoes || [];
-                    ultimoDiaIfood = data.ultimoDiaIfood || null;
-                    ifoodRecusas = data.ifoodRecusas || 0; ifoodCorridasFeitas = data.ifoodCorridasFeitas || 0;
-                    ifoodGanhos = data.ifoodGanhos || 0; ifoodBloqueado = data.ifoodBloqueado || false;
-                    ervaEstoque = data.ervaEstoque || 0; ervaLucro = data.ervaLucro || 0;
-                    preso = data.preso || false; tempoPrisaoRestante = data.tempoPrisaoRestante || 0;
-                    faccaoAtual = data.faccaoAtual || null;
-                    ervaComprasHoje = data.ervaComprasHoje || 0;
-                    ultimoDiaErva = data.ultimoDiaErva || null;
-                    if (data.contasAtivas) contasAtivas = data.contasAtivas.map(c => ({...c, vencimento: new Date(c.vencimento)}));
-                    if (data.contasPagas) contasPagas = data.contasPagas.map(c => ({...c, dataReativacao: new Date(c.dataReativacao)}));
-                    if (preso) iniciarPrisao(tempoPrisaoRestante);
-                    return true;
-                } catch(e) { return false; }
-            }
-
-            function mostrarIndicadorSalvamento() {
-                const indicador = document.getElementById('indicadorSalvamento');
-                indicador.classList.add('visivel');
-                setTimeout(() => indicador.classList.remove('visivel'), 2000);
-            }
-
-            // ============ VARIÁVEIS ============
-            let saldo = 0, temCNH = false, temCursoInformatica = false, trabalhando = false, dormindo = false;
-            let fome = 100, sono = 100;
-            let intervaloProgresso = null, intervaloDormir = null, intervaloIfood = null, intervaloSave = null;
-            let intervaloPolicia = null, intervaloPrisao = null;
-            let transacoes = [];
-            let ifoodAtivo = false, ifoodRecusas = 0, ifoodCorridasFeitas = 0, ifoodGanhos = 0;
-            let ifoodBloqueado = false, ultimoDiaIfood = null, corridaAtual = null;
-            let ervaEstoque = 0, ervaLucro = 0;
-            let preso = false, tempoPrisaoRestante = 0;
-            let faccaoAtual = null;
-            let ervaComprasHoje = 0, ultimoDiaErva = null;
-            const TEMPO_TRABALHO = 60;
-
-            const FACCOES = [
-                { id: 'cv', nome: 'CV - Comando Vermelho', icone: '🔴', descricao: 'A maior facção do Rio de Janeiro', cor: '#ff0000', preco: 1000, limiteDiario: 5 },
-                { id: 'pcc', nome: 'PCC - Primeiro Comando da Capital', icone: '⚫', descricao: 'Domina São Paulo e região', cor: '#333333', preco: 1000, limiteDiario: 3 },
-                { id: 'bonde40', nome: 'Bonde dos 40', icone: '💀', descricao: 'Facção em ascensão no Nordeste', cor: '#ff6600', preco: 1000, limiteDiario: 1 }
-            ];
-
-            const CONTAS_BASE = [
-                { nome: 'Conta de Luz', valor: 200, icone: '💡', diasVencimento: 2 },
-                { nome: 'Aluguel', valor: 500, icone: '🏠', diasVencimento: 2 }
-            ];
-            let contasAtivas = [], contasPagas = [];
-
-            const CURSOS = [
-                { id: 'informatica', nome: 'Informática', icone: '💻', descricao: 'Pacote Office completo', valor: 1000 },
-                { id: 'mobile', nome: 'Desenvolvimento Mobile', icone: '📱', descricao: 'Criação de aplicativos', valor: 5000 },
-                { id: 'medicina', nome: 'Medicina', icone: '🏥', descricao: 'Formação completa em medicina', valor: 10000 },
-                { id: 'policia', nome: 'Polícia', icone: '👮', descricao: 'Academia de formação policial', valor: 8000 },
-                { id: 'engenharia', nome: 'Engenharia', icone: '🏗️', descricao: 'Graduação em engenharia civil', valor: 15000 }
-            ];
-            let cursosAdquiridos = [];
-
-            const RESTAURANTES = ['🍔 Burguer King','🍕 Pizza Hut','🍟 McDonald\'s','🌮 Taco Bell','🍜 China in Box','🥗 Salad Bowl','🍣 Sushi House','🥩 Steak House','🍝 Pasta Bella','🍗 KFC'];
-
-            const body = document.body;
-            const barraFome = document.getElementById('barraFome'), barraSono = document.getElementById('barraSono');
-            const textoFome = document.getElementById('textoFome'), textoSono = document.getElementById('textoSono');
-            const saldoElement = document.getElementById('saldo'), barraData = document.getElementById('barraData');
-            const modalFaccao = document.getElementById('modalFaccao'), faccaoConteudo = document.getElementById('faccaoConteudo');
-            const modalMercado = document.getElementById('modalMercado');
-            const modalPrisao = document.getElementById('modalPrisao'), alertaPolicia = document.getElementById('alertaPolicia');
-            const prisaoTempoEl = document.getElementById('prisaoTempo'), prisaoBarra = document.getElementById('prisaoBarra');
-            const modalIfood = document.getElementById('modalIfood'), ifoodConteudo = document.getElementById('ifoodConteudo');
-            const ifoodGanhosEl = document.getElementById('ifoodGanhos'), ifoodCorridasEl = document.getElementById('ifoodCorridas'), ifoodRecusasEl = document.getElementById('ifoodRecusas');
-            const modalTrabalho = document.getElementById('modalTrabalho'), modalDormir = document.getElementById('modalDormir');
-            const modalPagamentoSucesso = document.getElementById('modalPagamentoSucesso');
-            const progressoBarra = document.getElementById('progressoBarra'), progressoTempo = document.getElementById('progressoTempo');
-            const telaCelular = document.getElementById('telaCelular'), horaReal = document.getElementById('horaReal');
-            const waTrabalhos = document.getElementById('waTrabalhos'), contasConteudoEl = document.getElementById('contasConteudo');
-            const listaTransacoes = document.getElementById('listaTransacoes'), bancoSaldoValor = document.getElementById('bancoSaldoValor');
-            const ervaEstoqueEl = document.getElementById('ervaEstoque'), ervaLucroEl = document.getElementById('ervaLucro');
-            const ervaQtd = document.getElementById('ervaQtd'), btnVenderErva = document.getElementById('btnVenderErva');
-            const btnComprarErva = document.getElementById('btnComprarErva');
-            const ervaComprasHojeEl = document.getElementById('ervaComprasHoje');
-            const ervaLimiteLabel = document.getElementById('ervaLimiteLabel');
-            const ervaLimiteTexto = document.getElementById('ervaLimiteTexto');
-
-            function formatarDinheiro(v) { return 'R$ ' + v.toFixed(2).replace('.', ','); }
-            function formatarData(d) { return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' }); }
-
-            function atualizarBarras() { barraFome.style.width=fome+'%'; barraSono.style.width=sono+'%'; textoFome.textContent=Math.round(fome)+'%'; textoSono.textContent=Math.round(sono)+'%'; }
-            function diminuirFome() { if(!dormindo&&!preso){fome=Math.max(0,fome-2);atualizarBarras();} }
-            function diminuirSono() { if(!dormindo&&!preso){sono=Math.max(0,sono-3);atualizarBarras();} }
-            function comer() { if(dormindo)return; if(preso)return mostrarNotificacao('🚔 Preso!'); if(fome>=100)return mostrarNotificacao('🍔 Satisfeito!'); fome=Math.min(100,fome+35);atualizarBarras();mostrarNotificacao('🍳 Comeu!');salvarJogo(); }
-            function dormir() { if(dormindo||preso)return; if(trabalhando||ifoodAtivo)return mostrarNotificacao('⚠️ Termine o trabalho!'); dormindo=true;fecharCelular();modalDormir.classList.add('ativo');let td=0;document.getElementById('btnAcordar').style.display='none';intervaloDormir=setInterval(()=>{td+=0.5;document.getElementById('dormirBarra').style.width=(td/5)*100+'%';if(td>=5)acordar();},500);setTimeout(()=>document.getElementById('btnAcordar').style.display='block',2000); }
-            function acordar() { if(intervaloDormir){clearInterval(intervaloDormir);intervaloDormir=null;} dormindo=false;modalDormir.classList.remove('ativo');sono=Math.min(100,sono+60);atualizarBarras();mostrarNotificacao('⏰ Acordou!');salvarJogo(); }
-
-            // ============ SISTEMA DE FACÇÕES ============
-            function verificarDiaErva() {
-                const hoje = new Date().toDateString();
-                if (ultimoDiaErva !== hoje) {
-                    ervaComprasHoje = 0;
-                    ultimoDiaErva = hoje;
-                }
-            }
-
-            function getLimiteDiario() {
-                if (!faccaoAtual) return 0;
-                const faccao = FACCOES.find(f => f.id === faccaoAtual);
-                return faccao ? faccao.limiteDiario : 0;
-            }
-
-            function atualizarFaccaoUI() {
-                if (!faccaoConteudo) return;
-                faccaoConteudo.innerHTML = FACCOES.map(f => {
-                    const selecionada = faccaoAtual === f.id;
-                    const podeComprar = !faccaoAtual && saldo >= f.preco;
-                    return `
-                        <div class="faccao-card ${selecionada ? 'selecionada' : ''} ${faccaoAtual && !selecionada ? 'bloqueada' : ''}">
-                            <div class="faccao-icone">${f.icone}</div>
-                            <div class="faccao-nome" style="color:${f.cor}">${f.nome}</div>
-                            <div class="faccao-descricao">${f.descricao}</div>
-                            <div class="faccao-preco">💰 Preço: ${formatarDinheiro(f.preco)}</div>
-                            <div class="faccao-limite">🌿 Limite diário de compras: ${f.limiteDiario} erva(s)</div>
-                            <div class="faccao-status">
-                                ${selecionada ? '<span style="color:#27ae60;">✅ Você é membro!</span>' : 
-                                  faccaoAtual ? '<span style="color:#e74c3c;">🔒 Já está em outra facção</span>' :
-                                  podeComprar ? '<span style="color:#f39c12;">Clique para entrar</span>' :
-                                  '<span style="color:#e74c3c;">Saldo insuficiente</span>'}
-                            </div>
-                            ${!faccaoAtual && !selecionada ? `<button class="btn-entrar-faccao" onclick="entrarFaccao('${f.id}')" ${!podeComprar ? 'disabled' : ''}>Entrar</button>` : ''}
-                        </div>
-                    `;
-                }).join('');
-            }
-
-            function entrarFaccao(id) {
-                if (faccaoAtual) return mostrarNotificacao('❌ Você já está em uma facção!');
-                const faccao = FACCOES.find(f => f.id === id);
-                if (!faccao) return;
-                if (saldo < faccao.preco) return mostrarNotificacao('❌ Saldo insuficiente!');
-                
-                saldo -= faccao.preco;
-                faccaoAtual = id;
-                ervaComprasHoje = 0;
-                ultimoDiaErva = new Date().toDateString();
-                transacoes.unshift({ nome: 'Entrou na facção: ' + faccao.nome, valor: faccao.preco, tipo: 'debito', data: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) });
-                atualizarSaldo(); atualizarListaTransacoes(); atualizarFaccaoUI();
-                mostrarNotificacao(`🏴‍☠️ Agora você é membro do ${faccao.nome}!`);
-                salvarJogo();
-            }
-
-            window.entrarFaccao = entrarFaccao;
-
-            function abrirFaccao() {
-                if (preso) return mostrarNotificacao('🚔 Preso!');
-                if (dormindo) return;
-                fecharCelular();
-                atualizarFaccaoUI();
-                modalFaccao.classList.add('ativo');
-            }
-
-            function fecharFaccao() {
-                modalFaccao.classList.remove('ativo');
-                salvarJogo();
-            }
-
-            // ============ SISTEMA DE ERVA / MERCADO NEGRO ============
-            function atualizarMercadoUI() {
-                verificarDiaErva();
-                ervaEstoqueEl.textContent = ervaEstoque + 'g';
-                ervaLucroEl.textContent = formatarDinheiro(ervaLucro);
-                ervaQtd.textContent = ervaEstoque + 'g';
-                btnVenderErva.disabled = ervaEstoque <= 0;
-                
-                const limite = getLimiteDiario();
-                ervaComprasHojeEl.textContent = ervaComprasHoje + '/' + limite;
-                ervaLimiteLabel.textContent = 'Compras (' + limite + '/dia)';
-                
-                if (limite > 0 && ervaComprasHoje >= limite) {
-                    btnComprarErva.disabled = true;
-                    ervaLimiteTexto.textContent = '🚫 Limite diário de compras atingido! (' + ervaComprasHoje + '/' + limite + ')';
-                    ervaLimiteTexto.style.color = '#e74c3c';
-                } else if (limite > 0) {
-                    btnComprarErva.disabled = false;
-                    ervaLimiteTexto.textContent = '📊 Compras hoje: ' + ervaComprasHoje + '/' + limite;
-                    ervaLimiteTexto.style.color = '#f39c12';
-                } else {
-                    btnComprarErva.disabled = true;
-                    ervaLimiteTexto.textContent = '🏴‍☠️ Entre em uma facção para comprar';
-                    ervaLimiteTexto.style.color = '#888';
-                }
-            }
-
-            function comprarErva() { 
-                if (preso) return mostrarNotificacao('🚔 Preso!');
-                if (!faccaoAtual) return mostrarNotificacao('🏴‍☠️ Você precisa ser de uma facção!');
-                
-                verificarDiaErva();
-                const limite = getLimiteDiario();
-                
-                if (ervaComprasHoje >= limite) {
-                    return mostrarNotificacao(`🚫 Limite diário atingido! (${ervaComprasHoje}/${limite})`);
-                }
-                
-                if (saldo < 100) return mostrarNotificacao('❌ Saldo insuficiente!');
-                
-                saldo -= 100;
-                ervaEstoque++;
-                ervaComprasHoje++;
-                transacoes.unshift({nome:'Compra de Erva (1g)',valor:100,tipo:'debito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
-                atualizarSaldo(); atualizarListaTransacoes(); atualizarMercadoUI();
-                mostrarNotificacao(`🌿 Comprou 1g por R$ 100,00 (${ervaComprasHoje}/${limite} hoje)`);
-                salvarJogo();
-            }
-
-            function venderErva() { 
-                if (preso) return mostrarNotificacao('🚔 Preso!'); 
-                if (ervaEstoque <= 0) return mostrarNotificacao('❌ Sem estoque!'); 
-                ervaEstoque--; 
-                const lucro = 300; 
-                saldo += lucro; 
-                ervaLucro += lucro; 
-                transacoes.unshift({nome:'Venda de Erva (1g)',valor:lucro,tipo:'credito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});
-                atualizarSaldo(); atualizarListaTransacoes(); atualizarMercadoUI();
-                mostrarNotificacao('💸 Vendeu 1g por R$ 300,00!');
-                salvarJogo(); 
-            }
-
-            window.comprarErva = comprarErva;
-            window.venderErva = venderErva;
-
-            function abrirMercado() { 
-                if (preso) return mostrarNotificacao('🚔 Preso!');
-                if (!faccaoAtual) return mostrarNotificacao('🏴‍☠️ Entre em uma facção primeiro!');
-                if (dormindo) return;
-                fecharCelular();
-                atualizarMercadoUI();
-                modalMercado.classList.add('ativo');
-            }
-
-            function fecharMercado() { modalMercado.classList.remove('ativo'); salvarJogo(); }
-
-            // ============ SISTEMA DE POLÍCIA ============
-            function verificarPolicia() { if(preso)return; if(ervaEstoque>0){alertaPolicia.classList.add('ativo');setTimeout(()=>alertaPolicia.classList.remove('ativo'),2000);if(Math.random()<0.5){iniciarPrisao(300);}else{mostrarNotificacao('🍀 Polícia bateu mas você escondeu!');}} }
-            function iniciarPrisao(segundos) { preso=true;tempoPrisaoRestante=segundos;fecharCelular();if(modalMercado.classList.contains('ativo'))modalMercado.classList.remove('ativo');if(modalFaccao.classList.contains('ativo'))modalFaccao.classList.remove('ativo');if(modalIfood.classList.contains('ativo'))fecharIfood();if(modalTrabalho.classList.contains('ativo')){clearInterval(intervaloProgresso);trabalhando=false;modalTrabalho.classList.remove('ativo');}modalPrisao.classList.add('ativo');prisaoBarra.style.width='0%';atualizarPrisaoUI();if(intervaloPrisao)clearInterval(intervaloPrisao);intervaloPrisao=setInterval(()=>{tempoPrisaoRestante--;atualizarPrisaoUI();if(tempoPrisaoRestante<=0)libertarPrisao();},1000);if(ervaEstoque>0){mostrarNotificacao('🚔 Perdeu '+ervaEstoque+'g de erva!');ervaEstoque=0;atualizarMercadoUI();}salvarJogo(); }
-            function atualizarPrisaoUI() { const min=Math.floor(tempoPrisaoRestante/60);const seg=tempoPrisaoRestante%60;prisaoTempoEl.textContent=`⏱️ ${min}:${String(seg).padStart(2,'0')}`;prisaoBarra.style.width=((300-tempoPrisaoRestante)/300)*100+'%'; }
-            function libertarPrisao() { preso=false;tempoPrisaoRestante=0;if(intervaloPrisao){clearInterval(intervaloPrisao);intervaloPrisao=null;}modalPrisao.classList.remove('ativo');mostrarNotificacao('🆓 Liberado da prisão!');salvarJogo(); }
-
-            // ============ OUTROS SISTEMAS ============
-            function inicializarContas() { if(contasAtivas.length===0&&contasPagas.length===0){CONTAS_BASE.forEach(c=>{const venc=new Date();venc.setDate(venc.getDate()+c.diasVencimento);contasAtivas.push({...c,vencimento:venc,id:Date.now()+Math.random()});});} }
-            function verificarReativacaoContas() { const agora=new Date(); let reativadas=[]; contasPagas=contasPagas.filter(c=>{if(c.dataReativacao<=agora){const venc=new Date();venc.setDate(venc.getDate()+c.diasVencimento);contasAtivas.push({nome:c.nome,valor:c.valor,icone:c.icone,diasVencimento:c.diasVencimento,vencimento:venc,id:Date.now()+Math.random()});reativadas.push(c.nome);return false;}return true;}); if(reativadas.length>0){mostrarNotificacao(`📋 ${reativadas.join(' e ')} disponível(is)!`);atualizarContasUI();salvarJogo();} }
-            function verificarContasVencidas() { const agora=new Date(); let alterou=false; contasAtivas=contasAtivas.filter(c=>{if(c.vencimento<=agora){if(saldo>=c.valor){saldo-=c.valor;transacoes.unshift({nome:c.nome+' (Débito Auto)',valor:c.valor,tipo:'debito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});const dr=new Date();dr.setDate(dr.getDate()+c.diasVencimento);contasPagas.push({nome:c.nome,valor:c.valor,icone:c.icone,diasVencimento:c.diasVencimento,dataReativacao:dr});mostrarNotificacao(`💸 ${c.nome} paga automaticamente: ${formatarDinheiro(c.valor)}`);alterou=true;return false;}return true;}return true;}); if(alterou){atualizarSaldo();atualizarListaTransacoes();atualizarContasUI();salvarJogo();} }
-            function pagarConta(id) { const i=contasAtivas.findIndex(c=>c.id===id); if(i===-1)return; const c=contasAtivas[i]; if(saldo>=c.valor){saldo-=c.valor;transacoes.unshift({nome:c.nome,valor:c.valor,tipo:'debito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});contasAtivas.splice(i,1);const dr=new Date();dr.setDate(dr.getDate()+c.diasVencimento);contasPagas.push({nome:c.nome,valor:c.valor,icone:c.icone,diasVencimento:c.diasVencimento,dataReativacao:dr});atualizarSaldo();atualizarListaTransacoes();const card=document.getElementById('conta-'+c.id);if(card){card.classList.add('removendo');setTimeout(()=>atualizarContasUI(),400);}else atualizarContasUI();document.getElementById('pagamentoTitulo').textContent='✅ Pago com Sucesso!';document.getElementById('pagamentoMensagem').textContent=`${c.nome} no valor de ${formatarDinheiro(c.valor)} foi pago!`;document.getElementById('pagamentoProx').innerHTML=`📅 Reaparece em <b>${c.diasVencimento} dias</b><br>🕐 Data: <b>${formatarData(dr)}</b>`;modalPagamentoSucesso.classList.add('ativo');salvarJogo();}else mostrarNotificacao('❌ Saldo insuficiente!'); }
-            function atualizarContasUI() { if(!contasConteudoEl)return; inicializarContas();verificarReativacaoContas(); if(contasAtivas.length===0){let h='<div class="sem-contas"><div class="sem-contas-icone">✅</div><div class="sem-contas-titulo">Todas as contas estão pagas!</div>';if(contasPagas.length>0){h+='<div style="font-weight:bold;color:#333;margin-top:15px;">📋 Próximas:</div>';contasPagas.forEach(c=>{h+=`<div class="prox-conta">${c.icone} <b>${c.nome}</b> - ${formatarDinheiro(c.valor)}<br>📅 Reaparece: ${formatarData(c.dataReativacao)}</div>`;});}h+='</div>';contasConteudoEl.innerHTML=h;}else{let h='<div style="font-weight:bold;color:#e74c3c;margin-bottom:10px;">📌 Pendentes</div>';contasAtivas.forEach(c=>{const dr=Math.ceil((c.vencimento-new Date())/(1000*60*60*24));h+=`<div class="conta-card" id="conta-${c.id}"><div class="conta-icone">${c.icone}</div><div class="conta-info"><div class="conta-nome">${c.nome}</div><div class="conta-descricao">${dr<=0?'⚠️ Vence hoje!':'Vence em '+dr+' dia(s)'}</div><div class="conta-vencimento">📅 ${formatarData(c.vencimento)}</div><div class="conta-valor">${formatarDinheiro(c.valor)}</div></div><button class="btn-pagar" onclick="window.pagarConta(${c.id})">💳 Pagar</button></div>`;});contasConteudoEl.innerHTML=h;} }
-            window.pagarConta = pagarConta;
-
-            function verificarDiaIfood() { const hoje=new Date().toDateString(); if(ultimoDiaIfood!==hoje){ifoodRecusas=0;ifoodCorridasFeitas=0;ifoodGanhos=0;ifoodBloqueado=false;ultimoDiaIfood=hoje;} }
-            function atualizarIfoodUI() { ifoodGanhosEl.textContent=formatarDinheiro(ifoodGanhos);ifoodCorridasEl.textContent=ifoodCorridasFeitas;ifoodRecusasEl.textContent=ifoodRecusas+'/5'; }
-            function gerarCorrida() { if(!ifoodAtivo||ifoodBloqueado||dormindo)return; const r=RESTAURANTES[Math.floor(Math.random()*RESTAURANTES.length)]; const v=Math.floor(Math.random()*181)+20; const d=(Math.random()*8+1).toFixed(1); corridaAtual={restaurante:r,valor:v,distancia:d,id:Date.now()}; ifoodConteudo.innerHTML=`<div class="ifood-corrida"><div class="ifood-restaurante">🏪 ${r}</div><div class="ifood-detalhes"><div class="ifood-valor">${formatarDinheiro(v)}</div><div class="ifood-distancia">📏 ${d} km</div></div><div class="ifood-botoes"><button class="btn-aceitar" onclick="aceitarCorrida(${corridaAtual.id})">✅ Aceitar</button><button class="btn-recusar" onclick="recusarCorrida()" ${ifoodRecusas>=5?'disabled':''}>❌ Recusar</button></div></div>`; }
-            function aceitarCorrida(id) { if(!corridaAtual||corridaAtual.id!==id)return; const v=corridaAtual.valor; ifoodCorridasFeitas++;ifoodGanhos+=v;saldo+=v;transacoes.unshift({nome:'iFood: '+corridaAtual.restaurante,valor:v,tipo:'credito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});atualizarSaldo();atualizarListaTransacoes();atualizarIfoodUI();corridaAtual=null;ifoodConteudo.innerHTML='<div class="ifood-esperando"><div class="pulse">🛵</div><p>Aguardando corrida...</p></div>';mostrarNotificacao(`✅ +${formatarDinheiro(v)}`);salvarJogo(); }
-            function recusarCorrida() { ifoodRecusas++;corridaAtual=null;atualizarIfoodUI();if(ifoodRecusas>=5){ifoodBloqueado=true;ifoodConteudo.innerHTML='<div class="ifood-bloqueado">🚫 Bloqueado! Volte amanhã.</div>';}else{ifoodConteudo.innerHTML='<div class="ifood-esperando"><div class="pulse">🛵</div><p>Aguardando corrida...</p></div>';}salvarJogo(); }
-            window.aceitarCorrida=aceitarCorrida;window.recusarCorrida=recusarCorrida;
-
-            function abrirIfood() { if(!temCNH)return mostrarNotificacao('🏍️ Precisa de CNH A!'); if(preso)return mostrarNotificacao('🚔 Preso!'); if(dormindo)return; verificarDiaIfood(); if(ifoodBloqueado)return mostrarNotificacao('🚫 Bloqueado!'); ifoodAtivo=true;fecharCelular();modalIfood.classList.add('ativo');atualizarIfoodUI();ifoodConteudo.innerHTML='<div class="ifood-esperando"><div class="pulse">🛵</div><p>Aguardando corrida...</p></div>';if(intervaloIfood)clearInterval(intervaloIfood);setTimeout(()=>{if(ifoodAtivo)gerarCorrida();},30000);intervaloIfood=setInterval(()=>{if(ifoodAtivo&&!ifoodBloqueado&&!corridaAtual)gerarCorrida();},30000); }
-            function fecharIfood() { ifoodAtivo=false;if(intervaloIfood){clearInterval(intervaloIfood);intervaloIfood=null;}modalIfood.classList.remove('ativo');salvarJogo(); }
-
-            function iniciarTrabalho(tipo,valor,icone,titulo) { if(preso)return mostrarNotificacao('🚔 Preso!'); if(trabalhando||ifoodAtivo)return mostrarNotificacao('⚠️ Já trabalhando!'); if(dormindo)return; if(fome<20)return mostrarNotificacao('🍔 Muita fome!'); if(sono<20)return mostrarNotificacao('😴 Muito sono!'); trabalhando=true;let pa=0;document.getElementById('trabalhoIcone').textContent=icone;document.getElementById('trabalhoTituloModal').textContent=titulo;progressoBarra.style.width='0%';progressoTempo.textContent='⏱️ 60s';fecharCelular();modalTrabalho.classList.add('ativo');intervaloProgresso=setInterval(()=>{pa+=(100/(TEMPO_TRABALHO*10));if(pa>=100){clearInterval(intervaloProgresso);intervaloProgresso=null;progressoBarra.style.width='100%';progressoTempo.textContent='✅';setTimeout(()=>{trabalhando=false;modalTrabalho.classList.remove('ativo');saldo+=valor;transacoes.unshift({nome:tipo,valor,tipo:'credito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});atualizarSaldo();atualizarListaTransacoes();mostrarNotificacao(`✅ ${tipo} +${formatarDinheiro(valor)}`);salvarJogo();},500);}else{progressoBarra.style.width=pa+'%';progressoTempo.textContent=`⏱️ ${Math.ceil(TEMPO_TRABALHO*(1-pa/100))}s`;}},100); }
-
-            function atualizarSaldo() { saldoElement.textContent=formatarDinheiro(saldo);if(bancoSaldoValor)bancoSaldoValor.textContent=formatarDinheiro(saldo); }
-            function atualizarListaTransacoes() { if(!listaTransacoes)return; if(transacoes.length===0){listaTransacoes.innerHTML='<div style="text-align:center;color:#999;padding:15px;">Nenhuma transação</div>';return;} listaTransacoes.innerHTML=transacoes.slice(0,8).map(t=>`<div class="transacao-item"><div class="transacao-icone ${t.tipo==='credito'?'transacao-credito':'transacao-debito'}">${t.tipo==='credito'?'💰':'💸'}</div><div class="transacao-info"><div class="transacao-nome">${t.nome}</div><div class="transacao-data">${t.data}</div></div><div class="transacao-valor ${t.tipo==='credito'?'valor-credito':'valor-debito'}">${t.tipo==='credito'?'+':'-'} ${formatarDinheiro(t.valor)}</div></div>`).join(''); }
-
-            function atualizarWaTrabalhos() {
-                const cnhB=temCNH?'<span style="background:#27ae60;color:white;padding:2px 6px;border-radius:8px;font-size:0.6rem;">✅ CNH A</span>':'<span style="background:#e67e22;color:white;padding:2px 6px;border-radius:8px;font-size:0.6rem;">🔒 CNH A</span>';
-                const infoB=temCursoInformatica?'<span style="background:#4caf50;color:white;padding:2px 6px;border-radius:8px;font-size:0.6rem;">✅ Curso</span>':'<span style="background:#e67e22;color:white;padding:2px 6px;border-radius:8px;font-size:0.6rem;">🔒 Curso</span>';
-                waTrabalhos.innerHTML=`
-                    <div class="trabalho-card ${temCNH?'':'bloqueado'}" onclick="${temCNH?'abrirIfood()':'comprarCNH()'}"><div class="trabalho-icone entregador-icone">🛵</div><div class="trabalho-info"><div class="trabalho-titulo">Entregador iFood ${cnhB}</div><div class="trabalho-descricao">Corridas de R$20 a R$200</div><div class="trabalho-requisito">🏍️ Requer CNH Categoria A</div><div class="trabalho-status ${temCNH?'status-livre':'status-bloqueado'}">${temCNH?'🟢 Disponível':'🔒 CNH necessária'}</div></div></div>
-                    <div class="trabalho-card" onclick="iniciarTrabalhoGlobal('Mecânico',80,'🔧','Mecânico')"><div class="trabalho-icone mecanico-icone">🔧</div><div class="trabalho-info"><div class="trabalho-titulo">Mecânico</div><div class="trabalho-descricao">Conserto de veículos</div><div class="trabalho-salario">💵 R$ 80,00</div><div class="trabalho-status status-livre">🟢 Livre</div></div></div>
-                    <div class="trabalho-card ${temCursoInformatica?'':'bloqueado'}" onclick="${temCursoInformatica?'iniciarTrabalhoGlobal(\'Técnico de Informática\',1500,\'💻\',\'Técnico de Informática\')':'mostrarNotificacaoGlobal(\'📚 Precisa do Curso de Informática!\')'}"><div class="trabalho-icone informatica-icone">💻</div><div class="trabalho-info"><div class="trabalho-titulo">Técnico de Informática ${infoB}</div><div class="trabalho-descricao">Manutenção de computadores</div><div class="trabalho-salario">💵 R$ 1.500,00</div><div class="trabalho-requisito">📚 Requer Curso de Informática</div><div class="trabalho-status ${temCursoInformatica?'status-livre':'status-bloqueado'}">${temCursoInformatica?'🟢 Disponível':'🔒 Curso necessário'}</div></div></div>
+            // Formatar WhatsApp (remover caracteres não numéricos)
+            const whatsappNumerico = curriculo.whatsappCandidato.replace(/\D/g, '');
+            
+            // Preencher informações do candidato
+            document.getElementById('infoCandidatoHeader').innerHTML = `
+                <div class="info-item">
+                    <strong><i class="fas fa-user"></i> Nome do Candidato</strong>
+                    <span>${curriculo.nomeCandidato}</span>
+                </div>
+                <div class="info-item info-item-whatsapp" onclick="chamarWhatsApp('${whatsappNumerico}', '${curriculo.nomeCandidato}')" title="Clique para chamar no WhatsApp">
+                    <strong><i class="fab fa-whatsapp"></i> WhatsApp</strong>
+                    <span>${curriculo.whatsappCandidato}</span>
+                </div>
+                ${curriculo.emailCandidato ? `
+                <div class="info-item">
+                    <strong><i class="fas fa-envelope"></i> Email</strong>
+                    <span>${curriculo.emailCandidato}</span>
+                </div>` : ''}
+                <div class="info-item">
+                    <strong><i class="fas fa-file"></i> Arquivo</strong>
+                    <span>${curriculo.nomeArquivo}</span>
+                </div>
+                <div class="info-item">
+                    <strong><i class="fas fa-calendar"></i> Data de Envio</strong>
+                    <span>${curriculo.dataEnvio} às ${curriculo.horaEnvio}</span>
+                </div>
+            `;
+            
+            // Configurar botão do WhatsApp
+            const btnWhatsApp = document.getElementById('btnWhatsAppCandidato');
+            btnWhatsApp.href = `https://wa.me/55${whatsappNumerico}?text=Olá ${encodeURIComponent(curriculo.nomeCandidato)}! Recebemos seu currículo para a vaga e gostaríamos de conversar com você.`;
+            
+            // Carregar documento
+            const content = document.getElementById('visualizadorContent');
+            const arquivo = curriculo.arquivoPDF;
+            
+            if (arquivo.startsWith('data:application/pdf')) {
+                content.innerHTML = `
+                    <div class="documento-visualizacao" id="documentoVisualizacao" style="width: 100%; max-width: 800px;">
+                        <iframe src="${arquivo}" style="width: 100%; height: 600px; border: none;"></iframe>
+                    </div>
+                `;
+            } else if (arquivo.startsWith('data:image/')) {
+                content.innerHTML = `
+                    <div class="documento-visualizacao" id="documentoVisualizacao" style="max-width: 800px;">
+                        <img src="${arquivo}" alt="Currículo de ${curriculo.nomeCandidato}" style="width: 100%; height: auto;">
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="documento-visualizacao" id="documentoVisualizacao" style="max-width: 800px;">
+                        <img src="${arquivo}" alt="Currículo de ${curriculo.nomeCandidato}" style="width: 100%; height: auto;">
+                    </div>
                 `;
             }
-
-            function comprarCNH() { if(saldo>=200){saldo-=200;temCNH=true;transacoes.unshift({nome:'CNH Categoria A',valor:200,tipo:'debito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});atualizarSaldo();atualizarListaTransacoes();atualizarWaTrabalhos();mostrarNotificacao('✅ CNH comprada!');salvarJogo();}else mostrarNotificacao('❌ R$ 200,00!'); }
-            window.iniciarTrabalhoGlobal=iniciarTrabalho;window.mostrarNotificacaoGlobal=mostrarNotificacao;window.abrirIfood=abrirIfood;window.comprarCNH=comprarCNH;
-
-            function atualizarCursosUI() { const el=document.getElementById('cursosConteudo'); if(!el)return; el.innerHTML=CURSOS.map(c=>{const adq=cursosAdquiridos.includes(c.id);return`<div class="curso-card ${adq?'adquirido':''}" onclick="${adq?'':`comprarCurso('${c.id}')`}"><div class="curso-icone">${c.icone}</div><div class="curso-info"><div class="curso-titulo">${c.nome}</div><div class="curso-descricao">${c.descricao}</div><div class="curso-valor">💰 ${formatarDinheiro(c.valor)}</div><span class="curso-status ${adq?'curso-adquirido-status':'curso-pago'}">${adq?'✅ Adquirido':'Clique para comprar'}</span></div></div>`;}).join(''); }
-            window.comprarCurso=function(id){const c=CURSOS.find(x=>x.id===id);if(!c||cursosAdquiridos.includes(id))return;if(saldo>=c.valor){saldo-=c.valor;cursosAdquiridos.push(id);transacoes.unshift({nome:'Curso: '+c.nome,valor:c.valor,tipo:'debito',data:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})});if(id==='informatica')temCursoInformatica=true;atualizarSaldo();atualizarListaTransacoes();atualizarCursosUI();atualizarWaTrabalhos();mostrarNotificacao(`✅ Curso de ${c.nome} adquirido!`);salvarJogo();}else mostrarNotificacao('❌ Saldo insuficiente!');};
-
-            function abrirCelular() { if(dormindo||preso)return; if(trabalhando||ifoodAtivo)return mostrarNotificacao('⚠️ Termine o trabalho!'); telaCelular.classList.add('ativa');document.querySelectorAll('.whatsapp-aba,.banco-aba,.cursos-aba,.contas-aba').forEach(a=>a.classList.remove('mostrar')); }
-            function fecharCelular() { telaCelular.classList.remove('ativa');document.querySelectorAll('.whatsapp-aba,.banco-aba,.cursos-aba,.contas-aba').forEach(a=>a.classList.remove('mostrar')); }
-            function mostrarNotificacao(msg) { const n=document.createElement('div');n.style.cssText='position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:white;padding:12px 24px;border-radius:25px;font-weight:bold;z-index:600;max-width:90%;text-align:center;';n.textContent=msg;document.body.appendChild(n);setTimeout(()=>{n.style.opacity='0';n.style.transition='0.3s';setTimeout(()=>n.remove(),300);},2000); }
-            function atualizarDataHora() { const agora=new Date();const h=String(agora.getHours()).padStart(2,'0'),m=String(agora.getMinutes()).padStart(2,'0');const icone=(agora.getHours()>=6&&agora.getHours()<18)?'🌞':'🌙';horaReal.textContent=`${h}:${m}`;barraData.innerHTML=`📅 ${formatarData(agora)} ${icone} ${h}:${m}`;body.classList.toggle('dia',agora.getHours()>=6&&agora.getHours()<18);body.classList.toggle('noite',!(agora.getHours()>=6&&agora.getHours()<18)); }
-
-            // Eventos
-            document.getElementById('btnSalvar').addEventListener('click',()=>{salvarJogo();mostrarNotificacao('💾 Jogo salvo!');});
-            document.getElementById('btnFecharFaccao').addEventListener('click',fecharFaccao);
-            document.getElementById('btnFecharMercado').addEventListener('click',fecharMercado);
-            document.getElementById('btnFecharSucesso').addEventListener('click',()=>modalPagamentoSucesso.classList.remove('ativo'));
-            document.getElementById('btnFecharIfood').addEventListener('click',fecharIfood);
-            document.getElementById('portaPrincipal').addEventListener('click',()=>{document.getElementById('cenarioExterno').classList.add('escondido');document.getElementById('cenarioInterno').classList.add('visivel');});
-            document.getElementById('btnSair').addEventListener('click',()=>{document.getElementById('cenarioInterno').classList.remove('visivel');document.getElementById('cenarioExterno').classList.remove('escondido');});
-            document.getElementById('btnCelularExterno').addEventListener('click',abrirCelular);
-            document.getElementById('btnCelularInterno').addEventListener('click',abrirCelular);
-            document.getElementById('btnFecharCelular').addEventListener('click',fecharCelular);
-            document.getElementById('btnFogao').addEventListener('click',comer);
-            document.getElementById('btnCama').addEventListener('click',dormir);
-            document.getElementById('btnAcordar').addEventListener('click',acordar);
-            document.getElementById('btnCancelarTrabalho').addEventListener('click',()=>{if(intervaloProgresso){clearInterval(intervaloProgresso);intervaloProgresso=null;}trabalhando=false;modalTrabalho.classList.remove('ativo');});
-            document.getElementById('iconeFaccao').addEventListener('click',abrirFaccao);
-            document.getElementById('iconeMercado').addEventListener('click',abrirMercado);
-            document.getElementById('iconeWhatsApp').addEventListener('click',()=>{atualizarWaTrabalhos();document.getElementById('whatsappAba').classList.add('mostrar');});
-            document.getElementById('iconeBanco').addEventListener('click',()=>{atualizarSaldo();atualizarListaTransacoes();document.getElementById('bancoAba').classList.add('mostrar');});
-            document.getElementById('iconeCursos').addEventListener('click',()=>{atualizarCursosUI();document.getElementById('cursosAba').classList.add('mostrar');});
-            document.getElementById('iconeContas').addEventListener('click',()=>{inicializarContas();verificarReativacaoContas();atualizarContasUI();document.getElementById('contasAba').classList.add('mostrar');});
-            ['btnVoltarWhatsApp','btnVoltarBanco','btnVoltarCursos','btnVoltarContas'].forEach(id=>document.getElementById(id).addEventListener('click',()=>document.querySelectorAll('.whatsapp-aba,.banco-aba,.cursos-aba,.contas-aba').forEach(a=>a.classList.remove('mostrar'))));
-
-            document.addEventListener('keydown',(e)=>{if(e.shiftKey&&e.key==='R'){e.preventDefault();if(confirm('⚠️ Resetar TODO o progresso?')){localStorage.removeItem(SAVE_KEY);location.reload();}}});
-            document.addEventListener('click',(e)=>{if(telaCelular.classList.contains('ativa')&&!telaCelular.contains(e.target)&&e.target!==document.getElementById('btnCelularExterno')&&e.target!==document.getElementById('btnCelularInterno'))fecharCelular();});
-
-            // Inicialização
-            const carregou = carregarJogo();
-            atualizarDataHora(); atualizarBarras(); inicializarContas(); atualizarWaTrabalhos();
-            atualizarCursosUI(); atualizarContasUI(); atualizarSaldo(); atualizarListaTransacoes();
-            atualizarMercadoUI(); atualizarFaccaoUI(); verificarDiaIfood(); verificarDiaErva();
             
-            if (!carregou) mostrarNotificacao('🆕 Novo jogo iniciado!');
-            else mostrarNotificacao('📂 Jogo carregado!');
+            document.getElementById('zoomLevel').textContent = '100%';
+            abrirModal('modalVisualizador');
+        }
 
-            intervaloSave = setInterval(() => salvarJogo(), 30000);
-            intervaloPolicia = setInterval(() => { if (!preso && ervaEstoque > 0) verificarPolicia(); }, 60000);
-            setInterval(diminuirSono, 10000);
-            setInterval(diminuirFome, 20000);
-            setInterval(() => { atualizarDataHora(); verificarContasVencidas(); verificarReativacaoContas(); verificarDiaIfood(); verificarDiaErva(); atualizarMercadoUI(); }, 30000);
-            window.addEventListener('beforeunload', () => salvarJogo());
-        })();
+        function chamarWhatsApp(numero, nome) {
+            const url = `https://wa.me/55${numero}?text=Olá ${encodeURIComponent(nome)}! Recebemos seu currículo e gostaríamos de conversar com você.`;
+            window.open(url, '_blank');
+        }
+
+        function fecharVisualizador() {
+            fecharModal('modalVisualizador');
+            curriculoAtual = null;
+            document.getElementById('visualizadorContent').innerHTML = '';
+        }
+
+        function alterarZoom(delta) {
+            zoomLevel = Math.max(50, Math.min(200, zoomLevel + delta));
+            aplicarZoom();
+        }
+
+        function resetZoom() {
+            zoomLevel = 100;
+            aplicarZoom();
+        }
+
+        function aplicarZoom() {
+            const doc = document.getElementById('documentoVisualizacao');
+            if (doc) {
+                doc.style.transform = `scale(${zoomLevel / 100})`;
+                document.getElementById('zoomLevel').textContent = zoomLevel + '%';
+            }
+        }
+
+        // ============ LOGIN ADM ============
+        document.getElementById('btnAdm').addEventListener('click', () => {
+            if (logadoADM) {
+                document.getElementById('tabsADM').classList.add('active');
+                document.getElementById('tabsEmpresa').classList.remove('active');
+                mudarPaginaAdmin('admin');
+            } else {
+                abrirModal('modalLoginADM');
+            }
+        });
+
+        document.getElementById('formLoginADM').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const login = document.getElementById('loginADM').value;
+            const senha = document.getElementById('senhaADM').value;
+            
+            if (login === 'adm2026' && senha === 'jose2026') {
+                logadoADM = true;
+                sessionStorage.setItem('logadoADM', 'true');
+                fecharModal('modalLoginADM');
+                document.getElementById('tabsADM').classList.add('active');
+                document.getElementById('tabsEmpresa').classList.remove('active');
+                this.reset();
+                document.getElementById('erroLoginADM').style.display = 'none';
+                mudarPaginaAdmin('admin');
+                mostrarToast('✅ Login ADM realizado!');
+            } else {
+                document.getElementById('erroLoginADM').style.display = 'block';
+            }
+        });
+
+        function logoutADM() {
+            logadoADM = false;
+            sessionStorage.removeItem('logadoADM');
+            document.getElementById('tabsADM').classList.remove('active');
+            mudarPaginaPublica();
+            mostrarToast('👋 Logout ADM realizado!');
+        }
+
+        // ============ LOGIN EMPRESA ============
+        document.getElementById('btnEmpresa').addEventListener('click', () => {
+            if (logadoEmpresa && empresaAtual) {
+                document.getElementById('tabsEmpresa').classList.add('active');
+                document.getElementById('tabsADM').classList.remove('active');
+                mudarPaginaEmpresa('painel');
+            } else {
+                abrirModal('modalLoginEmpresa');
+            }
+        });
+
+        document.getElementById('formLoginEmpresa').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const login = document.getElementById('loginEmpresa').value;
+            const senha = document.getElementById('senhaEmpresa').value;
+            
+            const empresa = empresas.find(emp => emp.login === login && emp.senha === senha);
+            
+            if (empresa) {
+                logadoEmpresa = true;
+                empresaAtual = empresa;
+                sessionStorage.setItem('logadoEmpresa', 'true');
+                sessionStorage.setItem('empresaAtual', JSON.stringify(empresa));
+                fecharModal('modalLoginEmpresa');
+                document.getElementById('tabsEmpresa').classList.add('active');
+                document.getElementById('tabsADM').classList.remove('active');
+                this.reset();
+                document.getElementById('erroLoginEmpresa').style.display = 'none';
+                mudarPaginaEmpresa('painel');
+                mostrarToast('✅ Login empresa realizado!');
+            } else {
+                document.getElementById('erroLoginEmpresa').style.display = 'block';
+            }
+        });
+
+        function logoutEmpresa() {
+            logadoEmpresa = false;
+            empresaAtual = null;
+            sessionStorage.removeItem('logadoEmpresa');
+            sessionStorage.removeItem('empresaAtual');
+            document.getElementById('tabsEmpresa').classList.remove('active');
+            mudarPaginaPublica();
+            mostrarToast('👋 Logout empresa realizado!');
+        }
+
+        // ============ NAVEGAÇÃO ============
+        function mudarPaginaPublica() {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-vagas').classList.add('active');
+            document.getElementById('searchInput').value = '';
+            carregarVagasPublicas();
+        }
+
+        function mudarPaginaAdmin(pagina) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('#tabsADM .tab').forEach(t => t.classList.remove('active'));
+            
+            if (pagina === 'vagas') {
+                document.getElementById('page-vagas').classList.add('active');
+                document.querySelector('#tabsADM .tab:nth-child(1)').classList.add('active');
+                carregarVagasPublicas();
+            } else if (pagina === 'admin') {
+                document.getElementById('page-admin').classList.add('active');
+                document.querySelector('#tabsADM .tab:nth-child(2)').classList.add('active');
+                atualizarListaVagasAdmin();
+            } else if (pagina === 'empresas') {
+                document.getElementById('page-empresas').classList.add('active');
+                document.querySelector('#tabsADM .tab:nth-child(3)').classList.add('active');
+                atualizarListaEmpresas();
+            }
+        }
+
+        function mudarPaginaEmpresa(pagina) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('#tabsEmpresa .tab').forEach(t => t.classList.remove('active'));
+            
+            if (pagina === 'vagas') {
+                document.getElementById('page-vagas').classList.add('active');
+                document.querySelector('#tabsEmpresa .tab:nth-child(1)').classList.add('active');
+                carregarVagasPublicas();
+            } else if (pagina === 'painel') {
+                document.getElementById('page-painel-empresa').classList.add('active');
+                document.querySelector('#tabsEmpresa .tab:nth-child(2)').classList.add('active');
+                atualizarVagasEmpresa();
+            }
+        }
+
+        // ============ UPLOAD DE FOTOS ============
+        document.getElementById('uploadFoto').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    fotoBase64 = e.target.result;
+                    document.getElementById('previewFoto').innerHTML = `<img src="${fotoBase64}" alt="Preview">`;
+                    document.getElementById('btnRemoverFoto').style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function removerFoto() {
+            fotoBase64 = '';
+            document.getElementById('previewFoto').innerHTML = '<i class="fas fa-building"></i>';
+            document.getElementById('btnRemoverFoto').style.display = 'none';
+            document.getElementById('uploadFoto').value = '';
+        }
+
+        document.getElementById('uploadFotoEmpresa').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    fotoBase64Empresa = e.target.result;
+                    document.getElementById('previewFotoEmpresa').innerHTML = `<img src="${fotoBase64Empresa}" alt="Preview">`;
+                    document.getElementById('btnRemoverFotoEmpresa').style.display = 'inline-block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function removerFotoEmpresa() {
+            fotoBase64Empresa = '';
+            document.getElementById('previewFotoEmpresa').innerHTML = '<i class="fas fa-building"></i>';
+            document.getElementById('btnRemoverFotoEmpresa').style.display = 'none';
+            document.getElementById('uploadFotoEmpresa').value = '';
+        }
+
+        // ============ CADASTRO DE EMPRESAS (ADM) ============
+        document.getElementById('formEmpresa').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const novaEmpresa = {
+                id: Date.now(),
+                nome: document.getElementById('nomeEmpresa').value.trim(),
+                login: document.getElementById('loginEmpresaCadastro').value.trim(),
+                senha: document.getElementById('senhaEmpresaCadastro').value.trim(),
+                whatsapp: document.getElementById('whatsappEmpresa').value.trim(),
+                dataCadastro: new Date().toLocaleDateString('pt-BR')
+            };
+
+            if (!novaEmpresa.nome || !novaEmpresa.login || !novaEmpresa.senha) {
+                mostrarToast('⚠️ Preencha todos os campos obrigatórios!', 'error');
+                return;
+            }
+
+            if (empresas.find(emp => emp.login === novaEmpresa.login)) {
+                mostrarToast('⚠️ Este login já está em uso!', 'error');
+                return;
+            }
+
+            empresas.push(novaEmpresa);
+            localStorage.setItem('empresas', JSON.stringify(empresas));
+            this.reset();
+            atualizarListaEmpresas();
+            mostrarToast('✅ Empresa cadastrada com sucesso!');
+        });
+
+        function atualizarListaEmpresas() {
+            const container = document.getElementById('empresasList');
+            if (empresas.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999;padding:30px;">📋 Nenhuma empresa cadastrada</p>';
+                return;
+            }
+
+            container.innerHTML = empresas.map(emp => `
+                <div class="empresa-cadastrada-item">
+                    <h4>🏢 ${emp.nome}</h4>
+                    <p><strong>Login:</strong> ${emp.login}</p>
+                    <p><strong>WhatsApp:</strong> ${emp.whatsapp || 'Não informado'}</p>
+                    <p><strong>Cadastrado em:</strong> ${emp.dataCadastro}</p>
+                    <button class="btn-excluir" onclick="excluirEmpresa(${emp.id})">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function excluirEmpresa(id) {
+            if (confirm('Tem certeza que deseja excluir esta empresa?')) {
+                empresas = empresas.filter(emp => emp.id !== id);
+                localStorage.setItem('empresas', JSON.stringify(empresas));
+                atualizarListaEmpresas();
+                mostrarToast('🗑️ Empresa excluída!');
+            }
+        }
+
+        // ============ CADASTRO DE VAGAS ============
+        document.getElementById('formVaga').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const novaVaga = {
+                id: Date.now(),
+                foto: fotoBase64,
+                empresa: document.getElementById('empresa').value.trim(),
+                whatsapp: document.getElementById('whatsapp').value.trim(),
+                titulo: document.getElementById('titulo').value.trim(),
+                descricao: document.getElementById('descricao').value.trim(),
+                localizacao: document.getElementById('localizacao').value.trim(),
+                tipo: document.getElementById('tipo').value,
+                data: new Date().toLocaleDateString('pt-BR'),
+                criadoPor: 'ADM'
+            };
+
+            if (!novaVaga.empresa || !novaVaga.whatsapp || !novaVaga.titulo || !novaVaga.descricao) {
+                mostrarToast('⚠️ Preencha todos os campos obrigatórios!', 'error');
+                return;
+            }
+
+            vagas.unshift(novaVaga);
+            localStorage.setItem('vagas', JSON.stringify(vagas));
+            this.reset();
+            removerFoto();
+            atualizarListaVagasAdmin();
+            carregarVagasPublicas();
+            mostrarToast('✅ Vaga cadastrada com sucesso!');
+        });
+
+        document.getElementById('formVagaEmpresa').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!empresaAtual) {
+                mostrarToast('⚠️ Erro: Empresa não identificada!', 'error');
+                return;
+            }
+
+            const novaVaga = {
+                id: Date.now(),
+                foto: fotoBase64Empresa,
+                empresa: empresaAtual.nome,
+                whatsapp: empresaAtual.whatsapp || '',
+                titulo: document.getElementById('tituloEmpresa').value.trim(),
+                descricao: document.getElementById('descricaoEmpresa').value.trim(),
+                localizacao: document.getElementById('localizacaoEmpresa').value.trim(),
+                tipo: document.getElementById('tipoEmpresa').value,
+                data: new Date().toLocaleDateString('pt-BR'),
+                criadoPor: empresaAtual.login,
+                empresaId: empresaAtual.id
+            };
+
+            if (!novaVaga.titulo || !novaVaga.descricao) {
+                mostrarToast('⚠️ Preencha todos os campos obrigatórios!', 'error');
+                return;
+            }
+
+            vagas.unshift(novaVaga);
+            localStorage.setItem('vagas', JSON.stringify(vagas));
+            this.reset();
+            removerFotoEmpresa();
+            atualizarVagasEmpresa();
+            carregarVagasPublicas();
+            mostrarToast('✅ Vaga cadastrada com sucesso!');
+        });
+
+        // ============ EXCLUIR VAGA ============
+        function excluirVaga(id) {
+            if (confirm('Tem certeza que deseja excluir esta vaga?')) {
+                vagas = vagas.filter(v => v.id !== id);
+                localStorage.setItem('vagas', JSON.stringify(vagas));
+                atualizarListaVagasAdmin();
+                atualizarVagasEmpresa();
+                carregarVagasPublicas();
+                mostrarToast('🗑️ Vaga excluída!');
+            }
+        }
+
+        function excluirVagaEmpresa(id) {
+            if (confirm('Tem certeza que deseja excluir esta vaga?')) {
+                vagas = vagas.filter(v => v.id !== id);
+                localStorage.setItem('vagas', JSON.stringify(vagas));
+                atualizarVagasEmpresa();
+                carregarVagasPublicas();
+                mostrarToast('🗑️ Vaga excluída!');
+            }
+        }
+
+        // ============ LISTAR VAGAS ============
+        function carregarVagasPublicas(filtro = '') {
+            const container = document.getElementById('vagasContainer');
+            const noResults = document.getElementById('noResults');
+            
+            const vagasFiltradas = vagas.filter(vaga => {
+                if (!filtro) return true;
+                const searchTerm = filtro.toLowerCase();
+                return vaga.empresa.toLowerCase().includes(searchTerm) ||
+                       vaga.titulo.toLowerCase().includes(searchTerm) ||
+                       vaga.descricao.toLowerCase().includes(searchTerm) ||
+                       (vaga.localizacao && vaga.localizacao.toLowerCase().includes(searchTerm));
+            });
+            
+            if (vagasFiltradas.length === 0) {
+                container.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+            
+            noResults.style.display = 'none';
+            
+            container.innerHTML = vagasFiltradas.map((vaga, index) => `
+                <div class="vaga-card" style="animation-delay: ${index * 0.1}s">
+                    <div class="vaga-header">
+                        <div class="empresa-avatar">
+                            ${vaga.foto ? `<img src="${vaga.foto}" alt="${vaga.empresa}">` : vaga.empresa.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="empresa-info">
+                            <h3>${vaga.empresa}</h3>
+                        </div>
+                    </div>
+                    
+                    <div class="vaga-titulo">${vaga.titulo}</div>
+                    <div class="vaga-descricao">${vaga.descricao}</div>
+                    
+                    <div class="vaga-tags">
+                        ${vaga.localizacao ? `<span class="tag tag-local"><i class="fas fa-map-marker-alt"></i> ${vaga.localizacao}</span>` : ''}
+                        <span class="tag tag-tipo"><i class="fas fa-file-contract"></i> ${vaga.tipo || 'CLT'}</span>
+                    </div>
+                    
+                    <a href="https://wa.me/55${vaga.whatsapp.replace(/\D/g, '')}?text=Olá! Tenho interesse na vaga de ${encodeURIComponent(vaga.titulo)}" 
+                       class="btn-whatsapp" target="_blank">
+                        <i class="fab fa-whatsapp"></i> Candidatar-se via WhatsApp
+                    </a>
+                    
+                    <button class="btn-curriculo" onclick="abrirEnvioCurriculo(${vaga.id})">
+                        <i class="fas fa-file-pdf"></i> Enviar Currículo
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function atualizarListaVagasAdmin() {
+            const container = document.getElementById('vagasAdminList');
+            if (vagas.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999;padding:30px;">📋 Nenhuma vaga cadastrada</p>';
+                return;
+            }
+
+            container.innerHTML = vagas.map(vaga => `
+                <div class="admin-vaga-item">
+                    <div class="admin-vaga-foto">
+                        ${vaga.foto ? `<img src="${vaga.foto}" alt="${vaga.empresa}">` : '<i class="fas fa-building" style="font-size:30px;color:#ccc;"></i>'}
+                    </div>
+                    <div class="admin-vaga-info">
+                        <h4>📌 ${vaga.titulo}</h4>
+                        <p><strong>🏢 Empresa:</strong> ${vaga.empresa}</p>
+                        <p><strong>📱 WhatsApp:</strong> ${vaga.whatsapp}</p>
+                        <p><strong>📍 Local:</strong> ${vaga.localizacao || 'Não informado'}</p>
+                        <p><strong>📄 Tipo:</strong> ${vaga.tipo}</p>
+                        <p><strong>📅 Data:</strong> ${vaga.data}</p>
+                        <button class="btn-excluir" onclick="excluirVaga(${vaga.id})">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                        <button class="btn-ver-curriculos" onclick="verCurriculos(${vaga.id})">
+                            <i class="fas fa-folder-open"></i> Currículos (${contarCurriculos(vaga.id)})
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function atualizarVagasEmpresa() {
+            if (!empresaAtual) return;
+            
+            const container = document.getElementById('vagasEmpresaList');
+            const minhasVagas = vagas.filter(v => v.empresaId === empresaAtual.id);
+            
+            if (minhasVagas.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999;padding:30px;">📋 Nenhuma vaga cadastrada</p>';
+                return;
+            }
+
+            container.innerHTML = minhasVagas.map(vaga => `
+                <div class="admin-vaga-item">
+                    <div class="admin-vaga-foto">
+                        ${vaga.foto ? `<img src="${vaga.foto}" alt="${vaga.empresa}">` : '<i class="fas fa-building" style="font-size:30px;color:#ccc;"></i>'}
+                    </div>
+                    <div class="admin-vaga-info">
+                        <h4>📌 ${vaga.titulo}</h4>
+                        <p><strong>📍 Local:</strong> ${vaga.localizacao || 'Não informado'}</p>
+                        <p><strong>📄 Tipo:</strong> ${vaga.tipo}</p>
+                        <p><strong>📅 Data:</strong> ${vaga.data}</p>
+                        <button class="btn-excluir" onclick="excluirVagaEmpresa(${vaga.id})">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                        <button class="btn-ver-curriculos" onclick="verCurriculos(${vaga.id})">
+                            <i class="fas fa-folder-open"></i> Currículos (${contarCurriculos(vaga.id)})
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============ SISTEMA DE CURRÍCULOS ============
+        function abrirEnvioCurriculo(vagaId) {
+            document.getElementById('vagaIdCurriculo').value = vagaId;
+            abrirModal('modalCurriculo');
+        }
+
+        document.getElementById('formCurriculo').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const file = document.getElementById('arquivoCurriculo').files[0];
+            if (!file) {
+                mostrarToast('⚠️ Selecione um arquivo!', 'error');
+                return;
+            }
+
+            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                mostrarToast('⚠️ Apenas PDF e imagens são aceitos!', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const novoCurriculo = {
+                    id: Date.now(),
+                    vagaId: parseInt(document.getElementById('vagaIdCurriculo').value),
+                    nomeCandidato: document.getElementById('nomeCandidato').value.trim(),
+                    whatsappCandidato: document.getElementById('whatsappCandidato').value.trim(),
+                    emailCandidato: document.getElementById('emailCandidato').value.trim(),
+                    arquivoPDF: e.target.result,
+                    nomeArquivo: file.name,
+                    tipoArquivo: file.type,
+                    dataEnvio: new Date().toLocaleDateString('pt-BR'),
+                    horaEnvio: new Date().toLocaleTimeString('pt-BR')
+                };
+
+                curriculos.push(novoCurriculo);
+                localStorage.setItem('curriculos', JSON.stringify(curriculos));
+                
+                document.getElementById('formCurriculo').reset();
+                fecharModal('modalCurriculo');
+                mostrarToast('✅ Currículo enviado com sucesso!');
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function contarCurriculos(vagaId) {
+            return curriculos.filter(c => c.vagaId === vagaId).length;
+        }
+
+        function verCurriculos(vagaId) {
+            const container = document.getElementById('listaCurriculos');
+            const curriculosVaga = curriculos.filter(c => c.vagaId === vagaId);
+            
+            if (curriculosVaga.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">📋 Nenhum currículo recebido</p>';
+            } else {
+                container.innerHTML = `
+                    <div style="margin-bottom: 15px; text-align: center; color: #666;">
+                        <strong>${curriculosVaga.length} currículo(s) recebido(s)</strong>
+                    </div>
+                    ${curriculosVaga.map(c => `
+                        <div class="curriculo-item">
+                            <div class="curriculo-info">
+                                <strong>👤 ${c.nomeCandidato}</strong>
+                                <small>📱 WhatsApp: ${c.whatsappCandidato}</small>
+                                ${c.emailCandidato ? `<small>📧 Email: ${c.emailCandidato}</small>` : ''}
+                                <small>📄 Arquivo: ${c.nomeArquivo}</small>
+                                <small>📅 Enviado em: ${c.dataEnvio} às ${c.horaEnvio}</small>
+                            </div>
+                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                <button class="btn-visualizar" onclick="abrirVisualizadorComDados(${c.id})">
+                                    <i class="fas fa-eye"></i> Visualizar
+                                </button>
+                                <button class="btn-download" onclick="baixarArquivo(${c.id})">
+                                    <i class="fas fa-download"></i> Baixar
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+            }
+            
+            abrirModal('modalVerCurriculos');
+        }
+
+        function abrirVisualizadorComDados(curriculoId) {
+            const curriculo = curriculos.find(c => c.id === curriculoId);
+            if (curriculo) {
+                fecharModal('modalVerCurriculos');
+                setTimeout(() => abrirVisualizador(curriculo), 300);
+            }
+        }
+
+        function baixarArquivo(curriculoId) {
+            const curriculo = curriculos.find(c => c.id === curriculoId);
+            if (curriculo) {
+                const link = document.createElement('a');
+                link.href = curriculo.arquivoPDF;
+                link.download = curriculo.nomeArquivo;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                mostrarToast('📥 Download iniciado!');
+            }
+        }
+
+        // ============ BUSCA ============
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            carregarVagasPublicas(e.target.value);
+        });
+
+        // ============ FECHAR MODAIS AO CLICAR FORA ============
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    if (this.id === 'modalVisualizador') {
+                        fecharVisualizador();
+                    } else {
+                        this.classList.remove('active');
+                    }
+                }
+            });
+        });
+
+        // ============ TECLA ESC PARA FECHAR ============
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (document.getElementById('modalVisualizador').classList.contains('active')) {
+                    fecharVisualizador();
+                }
+            }
+        });
+
+        // ============ INICIALIZAÇÃO ============
+        carregarVagasPublicas();
+        if (logadoADM) {
+            document.getElementById('tabsADM').classList.add('active');
+        }
+        if (logadoEmpresa && empresaAtual) {
+            document.getElementById('tabsEmpresa').classList.add('active');
+        }
     </script>
 </body>
 </html>

@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Vagas Completo</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Sistema de Gestão - Painel ADM</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
         * {
             margin: 0;
             padding: 0;
@@ -13,924 +14,239 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
         }
 
         .container {
-            max-width: 600px;
-            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+            width: 100%;
+            max-width: 700px;
+            overflow: hidden;
         }
 
-        /* Botões Discretos */
-        .botoes-discretos {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
+        .tabs {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 999;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        .btn-discreto {
-            width: 40px;
-            height: 40px;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
+        .tab-btn {
+            flex: 1;
+            padding: 20px 10px;
+            background: transparent;
+            border: none;
             color: rgba(255, 255, 255, 0.6);
-            font-size: 14px;
+            font-weight: 500;
+            font-size: 15px;
             cursor: pointer;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            letter-spacing: 0.5px;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 8px;
         }
 
-        .btn-discreto:hover {
-            background: rgba(255, 255, 255, 0.3);
+        .tab-btn i {
+            font-size: 18px;
+            transition: all 0.4s ease;
+        }
+
+        .tab-btn::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            width: 80%;
+            height: 3px;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            border-radius: 3px 3px 0 0;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-btn:hover {
             color: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.03);
         }
 
-        .btn-adm { border: 1px solid rgba(102, 126, 234, 0.5); }
-        .btn-empresa { border: 1px solid rgba(40, 167, 69, 0.5); }
+        .tab-btn.active {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+            text-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+        }
 
-        /* Modal */
-        .modal-overlay {
+        .tab-btn.active::before {
+            transform: translateX(-50%) scaleX(1);
+        }
+
+        .tab-btn.active i {
+            filter: drop-shadow(0 0 10px rgba(0, 210, 255, 0.6));
+        }
+
+        .tab-content {
+            padding: 30px;
+            color: white;
+            position: relative;
+            min-height: 400px;
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeSlideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px) scale(0.97);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            font-weight: 600;
+            font-size: 24px;
+            background: linear-gradient(90deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: inline-block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+        }
+
+        .card-vaga {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .card-vaga:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-vaga h3 {
+            color: #00d2ff;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .card-vaga p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .whatsapp-btn {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        .whatsapp-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 211, 102, 0.5);
+            background: linear-gradient(135deg, #1da851, #0e6b56);
+        }
+
+        .whatsapp-btn:active {
+            transform: translateY(0);
+        }
+
+        .admin-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .admin-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.6);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            display: none;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
             justify-content: center;
             align-items: center;
-            z-index: 1000;
             animation: fadeIn 0.3s ease;
         }
 
-        .modal-overlay.active {
+        .modal.active {
             display: flex;
-        }
-
-        .modal-login {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: slideUp 0.3s ease;
-            position: relative;
-        }
-
-        .modal-grande {
-            max-width: 600px;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .modal-full {
-            max-width: 95%;
-            max-height: 95vh;
-            width: 95%;
-            padding: 0;
-            background: #f5f5f5;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-login h2 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 24px;
-        }
-
-        .modal-login .form-group {
-            margin-bottom: 20px;
-        }
-
-        .modal-login label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-        }
-
-        .modal-login input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .modal-login input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn-login {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .btn-fechar {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #999;
-            z-index: 10;
-        }
-
-        .erro-login {
-            color: #f44336;
-            text-align: center;
-            margin-top: 10px;
-            font-size: 14px;
-            display: none;
-        }
-
-        /* Header */
-        header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-
-        header h1 {
-            font-size: 2em;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .search-box {
-            position: relative;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 15px 20px 15px 45px;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            outline: none;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-        }
-
-        /* Tabs */
-        .tabs-navegacao {
-            display: none;
-            background: white;
-            border-radius: 15px;
-            padding: 5px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .tabs-navegacao.active {
-            display: flex;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 10px;
-            color: #666;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            background: transparent;
-            font-size: 14px;
-        }
-
-        .tab.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .tab-empresa.active {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        }
-
-        /* Páginas */
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-        }
-
-        /* Cards de Vagas */
-        .vagas-grid {
-            display: grid;
-            gap: 20px;
-        }
-
-        .vaga-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
-            animation: slideUp 0.5s ease;
-        }
-
-        .vaga-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .vaga-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .empresa-avatar {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 24px;
-            margin-right: 15px;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .empresa-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .empresa-info h3 {
-            color: #333;
-            font-size: 18px;
-        }
-
-        .vaga-titulo {
-            color: #667eea;
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .vaga-descricao {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            white-space: pre-line;
-        }
-
-        .vaga-tags {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .tag {
-            background: #f0f0f0;
-            padding: 5px 15px;
-            border-radius: 15px;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .tag-local {
-            background: #e3f2fd;
-            color: #1976d2;
-        }
-
-        .tag-tipo {
-            background: #f3e5f5;
-            color: #7b1fa2;
-        }
-
-        .btn-whatsapp {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            background: #25D366;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            font-weight: 600;
-            margin-bottom: 10px;
-        }
-
-        .btn-whatsapp:hover {
-            background: #20bd5a;
-            transform: scale(1.02);
-        }
-
-        .btn-curriculo {
-            display: block;
-            width: 100%;
-            padding: 14px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            font-size: 16px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-
-        .btn-curriculo:hover {
-            background: #0056b3;
-            transform: scale(1.02);
-        }
-
-        .btn-whatsapp i, .btn-curriculo i {
-            margin-right: 8px;
-        }
-
-        /* Admin Styles */
-        .admin-section, .empresa-section {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-
-        .admin-section h2, .empresa-section h2 {
-            color: #333;
-            margin-bottom: 25px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #555;
-            font-weight: 500;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: border-color 0.3s ease;
-            font-family: inherit;
-        }
-
-        .form-group input:focus,
-        .form-group textarea:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .form-group textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        /* Upload de Foto */
-        .upload-foto {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-
-        .preview-foto {
-            width: 100px;
-            height: 100px;
-            border-radius: 15px;
-            background: #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border: 2px dashed #ccc;
-        }
-
-        .preview-foto img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .preview-foto i {
-            font-size: 40px;
-            color: #ccc;
-        }
-
-        .btn-upload {
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            border: none;
-            transition: background 0.3s ease;
-        }
-
-        .btn-upload:hover {
-            background: #5a6fd6;
-        }
-
-        .btn-remover-foto {
-            background: #ff4757;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 12px;
-            border: none;
-            margin-top: 5px;
-        }
-
-        .btn-submit {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.3s ease;
-            margin-bottom: 30px;
-        }
-
-        .btn-submit-empresa {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        }
-
-        .btn-submit:hover {
-            opacity: 0.9;
-        }
-
-        /* Lista de Vagas Admin */
-        .vagas-list {
-            margin-top: 40px;
-        }
-
-        .admin-vaga-item {
-            background: #f9f9f9;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-left: 4px solid #667eea;
-            display: flex;
-            gap: 15px;
-        }
-
-        .admin-vaga-foto {
-            width: 60px;
-            height: 60px;
-            border-radius: 10px;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .admin-vaga-foto img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .admin-vaga-info {
-            flex: 1;
-        }
-
-        .admin-vaga-item h4 {
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .admin-vaga-item p {
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 3px;
-        }
-
-        .btn-excluir {
-            background: #ff4757;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: background 0.3s ease;
-            margin-top: 10px;
-            margin-right: 5px;
-        }
-
-        .btn-excluir:hover {
-            background: #ee3a4d;
-        }
-
-        .btn-ver-curriculos {
-            background: #17a2b8;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: background 0.3s ease;
-            margin-top: 10px;
-        }
-
-        .btn-ver-curriculos:hover {
-            background: #138496;
-        }
-
-        .btn-logout {
-            background: #ff4757;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-bottom: 20px;
-            float: right;
-        }
-
-        /* Currículos */
-        .curriculos-list {
-            margin-top: 20px;
-        }
-
-        .curriculo-item {
-            background: #e3f2fd;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background 0.3s ease;
-        }
-
-        .curriculo-item:hover {
-            background: #bbdefb;
-        }
-
-        .curriculo-info {
-            flex: 1;
-        }
-
-        .curriculo-info strong {
-            color: #1976d2;
-            font-size: 16px;
-        }
-
-        .curriculo-info small {
-            color: #666;
-            display: block;
-            margin-top: 3px;
-        }
-
-        .btn-visualizar {
-            background: #28a745;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 15px;
-            text-decoration: none;
-            font-size: 12px;
-            cursor: pointer;
-            border: none;
-            margin-right: 5px;
-            transition: background 0.3s ease;
-        }
-
-        .btn-visualizar:hover {
-            background: #218838;
-        }
-
-        .btn-download {
-            background: #007bff;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 15px;
-            text-decoration: none;
-            font-size: 12px;
-            cursor: pointer;
-            border: none;
-            transition: background 0.3s ease;
-        }
-
-        .btn-download:hover {
-            background: #0056b3;
-        }
-
-        /* Empresas Cadastradas */
-        .empresa-cadastrada-item {
-            background: #f9f9f9;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-left: 4px solid #28a745;
-        }
-
-        .no-results {
-            text-align: center;
-            color: white;
-            padding: 50px 20px;
-            font-size: 18px;
-        }
-
-        .no-results i {
-            font-size: 50px;
-            margin-bottom: 20px;
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 15px 25px;
-            background: #4caf50;
-            color: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 1001;
-            animation: slideInRight 0.3s ease;
-            font-weight: 500;
-        }
-
-        .toast.error {
-            background: #f44336;
-        }
-
-        /* ============ VISUALIZADOR DE CURRÍCULO ============ */
-        .visualizador-header {
-            background: white;
-            padding: 20px;
-            border-radius: 20px 20px 0 0;
-            border-bottom: 2px solid #e0e0e0;
-        }
-
-        .visualizador-header h2 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .info-candidato-header {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .info-item {
-            background: #f0f8ff;
-            padding: 10px 15px;
-            border-radius: 10px;
-            border-left: 4px solid #007bff;
-        }
-
-        .info-item strong {
-            color: #007bff;
-            display: block;
-            font-size: 12px;
-            margin-bottom: 3px;
-        }
-
-        .info-item span {
-            color: #333;
-            font-size: 14px;
-        }
-
-        .info-item-whatsapp {
-            border-left-color: #25D366;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .info-item-whatsapp:hover {
-            background: #e8f5e9;
-            transform: scale(1.02);
-        }
-
-        .info-item-whatsapp strong {
-            color: #25D366;
-        }
-
-        .info-item-whatsapp::after {
-            content: '📱 Clique para chamar no WhatsApp';
-            position: absolute;
-            bottom: -25px;
-            left: 0;
-            font-size: 10px;
-            color: #25D366;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .info-item-whatsapp:hover::after {
-            opacity: 1;
-        }
-
-        .visualizador-toolbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .toolbar-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .toolbar-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .zoom-controls {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #f5f5f5;
-            padding: 8px 15px;
-            border-radius: 25px;
-        }
-
-        .btn-zoom {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            border: none;
-            background: white;
-            color: #333;
-            font-size: 16px;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .btn-zoom:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .zoom-level {
-            font-weight: 600;
-            color: #333;
-            min-width: 50px;
-            text-align: center;
-        }
-
-        .btn-whatsapp-visualizador {
-            background: #25D366;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-whatsapp-visualizador:hover {
-            background: #20bd5a;
-            transform: scale(1.05);
-        }
-
-        .btn-fechar-visualizador {
-            background: #ff4757;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: background 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-fechar-visualizador:hover {
-            background: #ee3a4d;
-        }
-
-        .visualizador-content {
-            flex: 1;
-            overflow: auto;
-            background: #e0e0e0;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 20px;
-            min-height: 400px;
-            max-height: 60vh;
-        }
-
-        .documento-visualizacao {
-            background: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            transition: transform 0.3s ease;
-            transform-origin: top center;
-        }
-
-        .documento-visualizacao img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .documento-visualizacao iframe {
-            width: 100%;
-            height: 600px;
-            border: none;
-        }
-
-        /* Ícone do WhatsApp pulsando */
-        .pulse-whatsapp {
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(37, 211, 102, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
-            }
         }
 
         @keyframes fadeIn {
@@ -938,1106 +254,608 @@
             to { opacity: 1; }
         }
 
+        .modal-content {
+            background: rgba(30, 30, 50, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            color: white;
+            animation: slideUp 0.4s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content-admin {
+            max-width: 700px;
+        }
+
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            letter-spacing: 0.3px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            color: white;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3a7bd5;
+            box-shadow: 0 0 0 4px rgba(58, 123, 213, 0.15);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #00d2ff, #3a7bd5);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            font-family: 'Inter', sans-serif;
+            margin-bottom: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(0, 210, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            margin-top: 10px;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+
+        .delete-btn {
+            background: rgba(255, 0, 0, 0.2);
+            border: none;
+            color: #ff4444;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 0, 0, 0.4);
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+        }
+
+        .vaga-item-admin {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .vaga-item-admin:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .vaga-info-admin {
+            flex: 1;
+        }
+
+        .vaga-info-admin h4 {
+            color: #00d2ff;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .vaga-info-admin p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 2px 0;
+        }
+
+        .admin-section {
+            margin-bottom: 25px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 20px;
+        }
+
+        .admin-section h3 {
+            color: #00d2ff;
+            margin-bottom: 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(37, 211, 102, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 500;
+            z-index: 2000;
+            animation: slideInRight 0.5s ease, slideOutRight 0.5s ease 2.5s forwards;
+            backdrop-filter: blur(10px);
         }
 
         @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(100px); }
-            to { opacity: 1; transform: translateX(0); }
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
-        @media (max-width: 480px) {
-            header h1 { font-size: 1.5em; }
-            .vaga-card { padding: 20px; }
-            .admin-section, .empresa-section { padding: 20px; }
-            .modal-login { padding: 25px; }
-            .curriculo-item {
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        @media (max-width: 500px) {
+            .tab-btn {
+                font-size: 13px;
+                padding: 16px 6px;
+            }
+            .tab-btn i {
+                font-size: 16px;
+            }
+            .tab-content {
+                padding: 20px;
+            }
+            .admin-btn {
+                bottom: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            .vaga-item-admin {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 10px;
-            }
-            .info-candidato-header {
-                grid-template-columns: 1fr;
-            }
-            .visualizador-toolbar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .toolbar-left, .toolbar-right {
-                flex-direction: column;
-                width: 100%;
-            }
-            .btn-whatsapp-visualizador, .btn-fechar-visualizador {
-                width: 100%;
-                justify-content: center;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Toast Container -->
-    <div id="toastContainer"></div>
-
-    <!-- Botões Discretos -->
-    <div class="botoes-discretos">
-        <button class="btn-discreto btn-adm" id="btnAdm" title="Painel ADM">
-            <i class="fas fa-lock"></i>
-        </button>
-        <button class="btn-discreto btn-empresa" id="btnEmpresa" title="Painel Empresa">
-            <i class="fas fa-building"></i>
-        </button>
-    </div>
-
-    <!-- Modal Login ADM -->
-    <div class="modal-overlay" id="modalLoginADM">
-        <div class="modal-login">
-            <button class="btn-fechar" onclick="fecharModal('modalLoginADM')">
-                <i class="fas fa-times"></i>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="cursos">
+                <span>📚</span> Cursos
             </button>
-            <h2><i class="fas fa-user-shield"></i> Acesso ADM</h2>
-            <form id="formLoginADM">
-                <div class="form-group">
-                    <label>Login</label>
-                    <input type="text" id="loginADM" placeholder="Digite o login" required>
-                </div>
-                <div class="form-group">
-                    <label>Senha</label>
-                    <input type="password" id="senhaADM" placeholder="Digite a senha" required>
-                </div>
-                <div class="erro-login" id="erroLoginADM">
-                    <i class="fas fa-exclamation-circle"></i> Login ou senha incorretos!
-                </div>
-                <button type="submit" class="btn-login">
-                    <i class="fas fa-sign-in-alt"></i> Entrar
-                </button>
-            </form>
+            <button class="tab-btn" data-tab="clt">
+                <span>💼</span> CLT
+            </button>
+            <button class="tab-btn" data-tab="diarias">
+                <span>📅</span> Diárias
+            </button>
+            <button class="tab-btn" data-tab="freelancer">
+                <span>🚀</span> Freelancer
+            </button>
         </div>
-    </div>
 
-    <!-- Modal Login Empresa -->
-    <div class="modal-overlay" id="modalLoginEmpresa">
-        <div class="modal-login">
-            <button class="btn-fechar" onclick="fecharModal('modalLoginEmpresa')">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2><i class="fas fa-building"></i> Acesso Empresa</h2>
-            <form id="formLoginEmpresa">
-                <div class="form-group">
-                    <label>Login</label>
-                    <input type="text" id="loginEmpresa" placeholder="Digite o login" required>
-                </div>
-                <div class="form-group">
-                    <label>Senha</label>
-                    <input type="password" id="senhaEmpresa" placeholder="Digite a senha" required>
-                </div>
-                <div class="erro-login" id="erroLoginEmpresa">
-                    <i class="fas fa-exclamation-circle"></i> Login ou senha incorretos!
-                </div>
-                <button type="submit" class="btn-login" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-                    <i class="fas fa-sign-in-alt"></i> Entrar
-                </button>
-            </form>
-        </div>
-    </div>
+        <div class="tab-content">
+            <!-- Aba Cursos -->
+            <div class="tab-pane active" id="cursos">
+                <h2>📚 Cursos Disponíveis</h2>
+                <div id="listaCursos"></div>
+            </div>
 
-    <!-- Modal Envio de Currículo -->
-    <div class="modal-overlay" id="modalCurriculo">
-        <div class="modal-login">
-            <button class="btn-fechar" onclick="fecharModal('modalCurriculo')">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2><i class="fas fa-file-pdf"></i> Enviar Currículo</h2>
-            <form id="formCurriculo">
-                <div class="form-group">
-                    <label>Seu Nome *</label>
-                    <input type="text" id="nomeCandidato" required placeholder="Digite seu nome completo">
-                </div>
-                <div class="form-group">
-                    <label>Seu WhatsApp *</label>
-                    <input type="text" id="whatsappCandidato" required placeholder="Ex: 11999999999">
-                </div>
-                <div class="form-group">
-                    <label>Seu Email</label>
-                    <input type="email" id="emailCandidato" placeholder="Ex: seuemail@email.com">
-                </div>
-                <div class="form-group">
-                    <label>Currículo (PDF ou Imagem) *</label>
-                    <input type="file" id="arquivoCurriculo" accept=".pdf,.jpg,.jpeg,.png,.gif,.bmp,.webp" required>
-                </div>
-                <input type="hidden" id="vagaIdCurriculo">
-                <button type="submit" class="btn-login" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);">
-                    <i class="fas fa-paper-plane"></i> Enviar Currículo
-                </button>
-            </form>
-        </div>
-    </div>
+            <!-- Aba CLT -->
+            <div class="tab-pane" id="clt">
+                <h2>💼 Vagas CLT</h2>
+                <div id="listaCLT"></div>
+            </div>
 
-    <!-- Modal Visualizar Currículos -->
-    <div class="modal-overlay" id="modalVerCurriculos">
-        <div class="modal-login modal-grande">
-            <button class="btn-fechar" onclick="fecharModal('modalVerCurriculos')">
-                <i class="fas fa-times"></i>
-            </button>
-            <h2><i class="fas fa-folder-open"></i> Currículos Recebidos</h2>
-            <div id="listaCurriculos" style="max-height: 500px; overflow-y: auto;">
-                <p style="text-align: center; color: #999;">Carregando...</p>
+            <!-- Aba Diárias -->
+            <div class="tab-pane" id="diarias">
+                <h2>📅 Diárias</h2>
+                <div id="listaDiarias"></div>
+            </div>
+
+            <!-- Aba Freelancer -->
+            <div class="tab-pane" id="freelancer">
+                <h2>🚀 Projetos Freelancer</h2>
+                <div id="listaFreelancer"></div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Visualizador de Currículo -->
-    <div class="modal-overlay" id="modalVisualizador">
-        <div class="modal-login modal-full">
-            <div class="visualizador-header">
-                <h2><i class="fas fa-file-alt"></i> Visualizar Currículo</h2>
-                
-                <div class="info-candidato-header" id="infoCandidatoHeader">
-                    <!-- Preenchido dinamicamente -->
-                </div>
-                
-                <div class="visualizador-toolbar">
-                    <div class="toolbar-left">
-                        <div class="zoom-controls">
-                            <button class="btn-zoom" onclick="alterarZoom(-10)" title="Diminuir zoom">
-                                <i class="fas fa-search-minus"></i>
-                            </button>
-                            <span class="zoom-level" id="zoomLevel">100%</span>
-                            <button class="btn-zoom" onclick="alterarZoom(10)" title="Aumentar zoom">
-                                <i class="fas fa-search-plus"></i>
-                            </button>
-                            <button class="btn-zoom" onclick="resetZoom()" title="Resetar zoom">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                        </div>
-                        
-                        <a href="#" id="btnWhatsAppCandidato" class="btn-whatsapp-visualizador pulse-whatsapp" target="_blank" title="Chamar no WhatsApp">
-                            <i class="fab fa-whatsapp"></i> Chamar Candidato
-                        </a>
-                    </div>
-                    
-                    <div class="toolbar-right">
-                        <button class="btn-fechar-visualizador" onclick="fecharVisualizador()">
-                            <i class="fas fa-times"></i> Sair
-                        </button>
-                    </div>
-                </div>
+    <!-- Botão Admin discreto -->
+    <button class="admin-btn" onclick="abrirLogin()" title="Painel ADM">⚙️</button>
+
+    <!-- Modal de Login -->
+    <div id="modalLogin" class="modal">
+        <div class="modal-content">
+            <h2>🔐 Acesso Administrativo</h2>
+            <div class="input-group">
+                <label>Login</label>
+                <input type="text" id="loginInput" placeholder="Digite o login">
             </div>
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" id="senhaInput" placeholder="Digite a senha">
+            </div>
+            <button onclick="fazerLogin()">Entrar</button>
+            <button class="close-btn" onclick="fecharModal('modalLogin')">Cancelar</button>
+            <p id="msgErro" style="color: #ff4444; margin-top: 10px; display: none;"></p>
+        </div>
+    </div>
+
+    <!-- Modal do Painel ADM -->
+    <div id="modalADM" class="modal">
+        <div class="modal-content modal-content-admin">
+            <h2>⚙️ Painel Administrativo</h2>
             
-            <div class="visualizador-content" id="visualizadorContent">
-                <!-- Documento carregado dinamicamente -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Tabs ADM -->
-    <div class="tabs-navegacao" id="tabsADM">
-        <button class="tab active" onclick="mudarPaginaAdmin('vagas')">
-            <i class="fas fa-briefcase"></i> Vagas
-        </button>
-        <button class="tab" onclick="mudarPaginaAdmin('admin')">
-            <i class="fas fa-cogs"></i> Gerenciar Vagas
-        </button>
-        <button class="tab" onclick="mudarPaginaAdmin('empresas')">
-            <i class="fas fa-building"></i> Empresas
-        </button>
-    </div>
-
-    <!-- Tabs Empresa -->
-    <div class="tabs-navegacao" id="tabsEmpresa">
-        <button class="tab tab-empresa active" onclick="mudarPaginaEmpresa('vagas')">
-            <i class="fas fa-briefcase"></i> Vagas
-        </button>
-        <button class="tab tab-empresa" onclick="mudarPaginaEmpresa('painel')">
-            <i class="fas fa-cogs"></i> Meu Painel
-        </button>
-    </div>
-
-    <!-- Página de Vagas Pública -->
-    <div id="page-vagas" class="page active">
-        <div class="container">
-            <header>
-                <h1><i class="fas fa-briefcase"></i> Vagas Disponíveis</h1>
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Buscar vagas...">
-                    <i class="fas fa-search"></i>
-                </div>
-            </header>
-            <div class="vagas-grid" id="vagasContainer"></div>
-            <div id="noResults" class="no-results" style="display: none;">
-                <i class="fas fa-search"></i>
-                <p>Nenhuma vaga encontrada</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Página Admin - Gerenciar Vagas -->
-    <div id="page-admin" class="page">
-        <div class="container">
-            <button class="btn-logout" onclick="logoutADM()">
-                <i class="fas fa-sign-out-alt"></i> Sair
-            </button>
+            <!-- Seção de Lançamento -->
             <div class="admin-section">
-                <h2><i class="fas fa-plus-circle"></i> Cadastrar Nova Vaga</h2>
-                <form id="formVaga">
-                    <div class="form-group">
-                        <label>Foto da Empresa</label>
-                        <div class="upload-foto">
-                            <div class="preview-foto" id="previewFoto">
-                                <i class="fas fa-building"></i>
-                            </div>
-                            <div>
-                                <input type="file" id="uploadFoto" accept="image/*" style="display: none;">
-                                <button type="button" class="btn-upload" onclick="document.getElementById('uploadFoto').click()">
-                                    <i class="fas fa-camera"></i> Escolher Foto
-                                </button>
-                                <br>
-                                <button type="button" class="btn-remover-foto" id="btnRemoverFoto" style="display: none;" onclick="removerFoto()">
-                                    <i class="fas fa-trash"></i> Remover
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Nome da Empresa *</label>
-                        <input type="text" id="empresa" required placeholder="Ex: Tech Solutions Ltda">
-                    </div>
-                    <div class="form-group">
-                        <label>WhatsApp *</label>
-                        <input type="text" id="whatsapp" required placeholder="Ex: 11999999999">
-                    </div>
-                    <div class="form-group">
-                        <label>Título da Vaga *</label>
-                        <input type="text" id="titulo" required placeholder="Ex: Desenvolvedor Front-end">
-                    </div>
-                    <div class="form-group">
-                        <label>Descrição *</label>
-                        <textarea id="descricao" required placeholder="Descreva os requisitos e benefícios..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Localização</label>
-                        <input type="text" id="localizacao" placeholder="Ex: São Paulo - SP">
-                    </div>
-                    <div class="form-group">
-                        <label>Tipo de Contrato</label>
-                        <select id="tipo">
-                            <option value="CLT">CLT</option>
-                            <option value="PJ">PJ</option>
-                            <option value="Freelancer">Freelancer</option>
-                            <option value="Estágio">Estágio</option>
-                            <option value="Temporário">Temporário</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-submit">
-                        <i class="fas fa-save"></i> Cadastrar Vaga
-                    </button>
-                </form>
-                <div class="vagas-list">
-                    <h2><i class="fas fa-list"></i> Vagas Cadastradas</h2>
-                    <div id="vagasAdminList"></div>
+                <h3>🚀 Lançar Nova Vaga</h3>
+                <div class="input-group">
+                    <label>Tipo de Vaga</label>
+                    <select id="tipoVaga">
+                        <option value="cursos">📚 Curso</option>
+                        <option value="clt">💼 CLT</option>
+                        <option value="diarias">📅 Diária</option>
+                        <option value="freelancer">🚀 Freelancer</option>
+                    </select>
                 </div>
+                <div class="input-group">
+                    <label>Nome da Vaga/Curso</label>
+                    <input type="text" id="nomeVaga" placeholder="Ex: Desenvolvedor React">
+                </div>
+                <div class="input-group">
+                    <label>Nome da Empresa/Instituição</label>
+                    <input type="text" id="empresaVaga" placeholder="Ex: Tech Solutions Ltda">
+                </div>
+                <div class="input-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" id="valorVaga" placeholder="Ex: 5000.00" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label>Carga Horária / Horas</label>
+                    <input type="text" id="horasVaga" placeholder="Ex: 40h semanais ou 20h totais">
+                </div>
+                <div class="input-group">
+                    <label>WhatsApp do Empregador</label>
+                    <input type="text" id="whatsappVaga" placeholder="Ex: (11) 99999-9999">
+                </div>
+                <button onclick="lancarVaga()">🚀 Lançar Vaga</button>
             </div>
-        </div>
-    </div>
 
-    <!-- Página Admin - Gerenciar Empresas -->
-    <div id="page-empresas" class="page">
-        <div class="container">
-            <button class="btn-logout" onclick="logoutADM()">
-                <i class="fas fa-sign-out-alt"></i> Sair
-            </button>
+            <!-- Seção de Gerenciamento -->
             <div class="admin-section">
-                <h2><i class="fas fa-plus-circle"></i> Cadastrar Empresa</h2>
-                <form id="formEmpresa">
-                    <div class="form-group">
-                        <label>Nome da Empresa *</label>
-                        <input type="text" id="nomeEmpresa" required placeholder="Nome da empresa">
-                    </div>
-                    <div class="form-group">
-                        <label>Login da Empresa *</label>
-                        <input type="text" id="loginEmpresaCadastro" required placeholder="Login para acesso">
-                    </div>
-                    <div class="form-group">
-                        <label>Senha da Empresa *</label>
-                        <input type="password" id="senhaEmpresaCadastro" required placeholder="Senha para acesso">
-                    </div>
-                    <div class="form-group">
-                        <label>WhatsApp da Empresa</label>
-                        <input type="text" id="whatsappEmpresa" placeholder="Ex: 11999999999">
-                    </div>
-                    <button type="submit" class="btn-submit btn-submit-empresa">
-                        <i class="fas fa-save"></i> Cadastrar Empresa
-                    </button>
-                </form>
-                <div class="vagas-list">
-                    <h2><i class="fas fa-list"></i> Empresas Cadastradas</h2>
-                    <div id="empresasList"></div>
-                </div>
+                <h3>🗑️ Gerenciar Vagas (Excluir)</h3>
+                <div id="listaAdminVagas"></div>
             </div>
-        </div>
-    </div>
 
-    <!-- Página Painel Empresa -->
-    <div id="page-painel-empresa" class="page">
-        <div class="container">
-            <button class="btn-logout" onclick="logoutEmpresa()">
-                <i class="fas fa-sign-out-alt"></i> Sair
-            </button>
-            <div class="empresa-section">
-                <h2><i class="fas fa-plus-circle"></i> Cadastrar Vaga</h2>
-                <form id="formVagaEmpresa">
-                    <div class="form-group">
-                        <label>Foto da Empresa</label>
-                        <div class="upload-foto">
-                            <div class="preview-foto" id="previewFotoEmpresa">
-                                <i class="fas fa-building"></i>
-                            </div>
-                            <div>
-                                <input type="file" id="uploadFotoEmpresa" accept="image/*" style="display: none;">
-                                <button type="button" class="btn-upload" onclick="document.getElementById('uploadFotoEmpresa').click()">
-                                    <i class="fas fa-camera"></i> Escolher Foto
-                                </button>
-                                <br>
-                                <button type="button" class="btn-remover-foto" id="btnRemoverFotoEmpresa" style="display: none;" onclick="removerFotoEmpresa()">
-                                    <i class="fas fa-trash"></i> Remover
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Título da Vaga *</label>
-                        <input type="text" id="tituloEmpresa" required placeholder="Ex: Desenvolvedor Front-end">
-                    </div>
-                    <div class="form-group">
-                        <label>Descrição *</label>
-                        <textarea id="descricaoEmpresa" required placeholder="Descreva os requisitos e benefícios..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>Localização</label>
-                        <input type="text" id="localizacaoEmpresa" placeholder="Ex: São Paulo - SP">
-                    </div>
-                    <div class="form-group">
-                        <label>Tipo de Contrato</label>
-                        <select id="tipoEmpresa">
-                            <option value="CLT">CLT</option>
-                            <option value="PJ">PJ</option>
-                            <option value="Freelancer">Freelancer</option>
-                            <option value="Estágio">Estágio</option>
-                            <option value="Temporário">Temporário</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-submit btn-submit-empresa">
-                        <i class="fas fa-save"></i> Cadastrar Vaga
-                    </button>
-                </form>
-                <div class="vagas-list">
-                    <h2><i class="fas fa-list"></i> Minhas Vagas</h2>
-                    <div id="vagasEmpresaList"></div>
-                </div>
-            </div>
+            <button class="close-btn" onclick="fecharModal('modalADM')">Fechar Painel</button>
         </div>
     </div>
 
     <script>
-        // ============ DADOS GLOBAIS ============
-        let vagas = JSON.parse(localStorage.getItem('vagas')) || [];
-        let empresas = JSON.parse(localStorage.getItem('empresas')) || [];
-        let curriculos = JSON.parse(localStorage.getItem('curriculos')) || [];
-        let fotoBase64 = '';
-        let fotoBase64Empresa = '';
-        let logadoADM = sessionStorage.getItem('logadoADM') === 'true';
-        let logadoEmpresa = sessionStorage.getItem('logadoEmpresa') === 'true';
-        let empresaAtual = JSON.parse(sessionStorage.getItem('empresaAtual')) || null;
-        let zoomLevel = 100;
-        let curriculoAtual = null;
+        // Dados armazenados
+        let vagas = {
+            cursos: [],
+            clt: [],
+            diarias: [],
+            freelancer: []
+        };
 
-        // ============ FUNÇÕES DE MODAL ============
-        function abrirModal(id) {
-            document.getElementById(id).classList.add('active');
+        // Carregar dados salvos ao iniciar
+        function carregarDados() {
+            const dadosSalvos = localStorage.getItem('vagasSistema');
+            if (dadosSalvos) {
+                vagas = JSON.parse(dadosSalvos);
+            }
+            atualizarTodasListas();
+        }
+
+        // Salvar dados automaticamente
+        function salvarDados() {
+            localStorage.setItem('vagasSistema', JSON.stringify(vagas));
+            mostrarNotificacao('💾 Dados salvos com sucesso!');
+        }
+
+        // Mostrar notificação
+        function mostrarNotificacao(mensagem) {
+            const notificacao = document.createElement('div');
+            notificacao.className = 'notification';
+            notificacao.textContent = mensagem;
+            document.body.appendChild(notificacao);
+            
+            setTimeout(() => {
+                notificacao.remove();
+            }, 3000);
+        }
+
+        // Gerar mensagem personalizada para WhatsApp
+        function gerarMensagemWhatsApp(tipo, vaga) {
+            const data = new Date().toLocaleDateString('pt-BR');
+            const hora = new Date().toLocaleTimeString('pt-BR');
+            
+            switch(tipo) {
+                case 'cursos':
+                    return `Olá! Tenho interesse no curso *${vaga.nome}* da instituição *${vaga.empresa}*.\n\n` +
+                           `📅 Data do contato: ${data}\n` +
+                           `🕐 Horário: ${hora}\n\n` +
+                           `Poderia me passar mais informações sobre:\n` +
+                           `• Conteúdo programático\n` +
+                           `• Formas de pagamento\n` +
+                           `• Datas de início\n\n` +
+                           `Aguardo seu retorno! 📚`;
+                           
+                case 'clt':
+                    return `Olá! Tenho interesse na vaga CLT de *${vaga.nome}* na empresa *${vaga.empresa}*.\n\n` +
+                           `📅 Data da candidatura: ${data}\n` +
+                           `🕐 Horário: ${hora}\n\n` +
+                           `Gostaria de saber mais sobre:\n` +
+                           `• Benefícios oferecidos\n` +
+                           `• Requisitos da vaga\n` +
+                           `• Processo seletivo\n\n` +
+                           `Estou disponível para uma entrevista! 💼`;
+                           
+                case 'diarias':
+                    return `Olá! Tenho interesse nas diárias de *${vaga.nome}* na empresa *${vaga.empresa}*.\n\n` +
+                           `📅 Data do contato: ${data}\n` +
+                           `🕐 Horário: ${hora}\n\n` +
+                           `Gostaria de saber:\n` +
+                           `• Disponibilidade de datas\n` +
+                           `• Local de trabalho\n` +
+                           `• Condições de pagamento\n\n` +
+                           `Aguardo seu retorno! 📅`;
+                           
+                case 'freelancer':
+                    return `Olá! Tenho interesse no projeto freelancer *${vaga.nome}* da empresa *${vaga.empresa}*.\n\n` +
+                           `📅 Data do contato: ${data}\n` +
+                           `🕐 Horário: ${hora}\n\n` +
+                           `Poderia me enviar mais detalhes sobre:\n` +
+                           `• Escopo do projeto\n` +
+                           `• Prazo de entrega\n` +
+                           `• Tecnologias necessárias\n\n` +
+                           `Estou disponível para conversarmos! 🚀`;
+                           
+                default:
+                    return `Olá! Tenho interesse na oportunidade *${vaga.nome}*. Poderia me dar mais informações?`;
+            }
+        }
+
+        // Atualizar listas da tela principal
+        function atualizarTodasListas() {
+            atualizarListaPrincipal('cursos', 'listaCursos', '📚');
+            atualizarListaPrincipal('clt', 'listaCLT', '💼');
+            atualizarListaPrincipal('diarias', 'listaDiarias', '📅');
+            atualizarListaPrincipal('freelancer', 'listaFreelancer', '🚀');
+        }
+
+        function atualizarListaPrincipal(tipo, elementoId, icone) {
+            const elemento = document.getElementById(elementoId);
+            if (vagas[tipo].length === 0) {
+                elemento.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">${icone}</div>
+                        <p>Nenhuma vaga disponível no momento</p>
+                    </div>
+                `;
+            } else {
+                elemento.innerHTML = vagas[tipo].map((vaga, index) => {
+                    const mensagem = gerarMensagemWhatsApp(tipo, vaga);
+                    const whatsappNumber = vaga.whatsapp.replace(/\D/g, '');
+                    const whatsappLink = `https://wa.me/55${whatsappNumber}?text=${encodeURIComponent(mensagem)}`;
+                    
+                    return `
+                        <div class="card-vaga">
+                            <h3>${vaga.nome}</h3>
+                            <p><strong>🏢 Empresa:</strong> ${vaga.empresa}</p>
+                            <p><strong>💰 Valor:</strong> R$ ${vaga.valor}</p>
+                            <p><strong>⏱️ Horas:</strong> ${vaga.horas}</p>
+                            <a href="${whatsappLink}" target="_blank" class="whatsapp-btn">
+                                📱 Contatar via WhatsApp
+                            </a>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Atualizar lista de vagas no painel ADM
+        function atualizarListaAdmin() {
+            const container = document.getElementById('listaAdminVagas');
+            let html = '';
+            
+            for (const tipo in vagas) {
+                const tipoNome = {
+                    'cursos': '📚 Cursos',
+                    'clt': '💼 CLT',
+                    'diarias': '📅 Diárias',
+                    'freelancer': '🚀 Freelancer'
+                }[tipo];
+                
+                if (vagas[tipo].length > 0) {
+                    html += `<h4 style="color: #00d2ff; margin-top: 15px;">${tipoNome}</h4>`;
+                    vagas[tipo].forEach((vaga, index) => {
+                        html += `
+                            <div class="vaga-item-admin">
+                                <div class="vaga-info-admin">
+                                    <h4>${vaga.nome}</h4>
+                                    <p>🏢 ${vaga.empresa} | 💰 R$ ${vaga.valor} | ⏱️ ${vaga.horas}</p>
+                                    <p>📱 ${vaga.whatsapp}</p>
+                                </div>
+                                <button class="delete-btn" onclick="deletarVaga('${tipo}', ${index})">
+                                    🗑️ Excluir
+                                </button>
+                            </div>
+                        `;
+                    });
+                }
+            }
+            
+            if (html === '') {
+                html = '<p style="color: rgba(255,255,255,0.4); text-align: center; padding: 20px;">Nenhuma vaga cadastrada</p>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        // Deletar vaga (apenas no painel ADM)
+        function deletarVaga(tipo, index) {
+            if (confirm(`Tem certeza que deseja excluir a vaga "${vagas[tipo][index].nome}"?`)) {
+                vagas[tipo].splice(index, 1);
+                salvarDados();
+                atualizarTodasListas();
+                atualizarListaAdmin();
+                mostrarNotificacao('🗑️ Vaga excluída com sucesso!');
+            }
+        }
+
+        // Sistema de abas
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetTab = btn.getAttribute('data-tab');
+                
+                tabBtns.forEach(b => b.classList.remove('active'));
+                tabPanes.forEach(p => p.classList.remove('active'));
+                
+                btn.classList.add('active');
+                document.getElementById(targetTab).classList.add('active');
+            });
+        });
+
+        // Funções do modal
+        function abrirLogin() {
+            document.getElementById('modalLogin').classList.add('active');
+            document.getElementById('loginInput').value = '';
+            document.getElementById('senhaInput').value = '';
+            document.getElementById('msgErro').style.display = 'none';
         }
 
         function fecharModal(id) {
             document.getElementById(id).classList.remove('active');
         }
 
-        function mostrarToast(mensagem, tipo = 'success') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${tipo}`;
-            toast.textContent = mensagem;
-            document.getElementById('toastContainer').appendChild(toast);
-            setTimeout(() => {
-                toast.style.animation = 'slideInRight 0.3s ease reverse';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        // ============ VISUALIZADOR DE CURRÍCULO ============
-        function abrirVisualizador(curriculo) {
-            curriculoAtual = curriculo;
-            zoomLevel = 100;
+        function fazerLogin() {
+            const login = document.getElementById('loginInput').value;
+            const senha = document.getElementById('senhaInput').value;
             
-            // Formatar WhatsApp (remover caracteres não numéricos)
-            const whatsappNumerico = curriculo.whatsappCandidato.replace(/\D/g, '');
-            
-            // Preencher informações do candidato
-            document.getElementById('infoCandidatoHeader').innerHTML = `
-                <div class="info-item">
-                    <strong><i class="fas fa-user"></i> Nome do Candidato</strong>
-                    <span>${curriculo.nomeCandidato}</span>
-                </div>
-                <div class="info-item info-item-whatsapp" onclick="chamarWhatsApp('${whatsappNumerico}', '${curriculo.nomeCandidato}')" title="Clique para chamar no WhatsApp">
-                    <strong><i class="fab fa-whatsapp"></i> WhatsApp</strong>
-                    <span>${curriculo.whatsappCandidato}</span>
-                </div>
-                ${curriculo.emailCandidato ? `
-                <div class="info-item">
-                    <strong><i class="fas fa-envelope"></i> Email</strong>
-                    <span>${curriculo.emailCandidato}</span>
-                </div>` : ''}
-                <div class="info-item">
-                    <strong><i class="fas fa-file"></i> Arquivo</strong>
-                    <span>${curriculo.nomeArquivo}</span>
-                </div>
-                <div class="info-item">
-                    <strong><i class="fas fa-calendar"></i> Data de Envio</strong>
-                    <span>${curriculo.dataEnvio} às ${curriculo.horaEnvio}</span>
-                </div>
-            `;
-            
-            // Configurar botão do WhatsApp
-            const btnWhatsApp = document.getElementById('btnWhatsAppCandidato');
-            btnWhatsApp.href = `https://wa.me/55${whatsappNumerico}?text=Olá ${encodeURIComponent(curriculo.nomeCandidato)}! Recebemos seu currículo para a vaga e gostaríamos de conversar com você.`;
-            
-            // Carregar documento
-            const content = document.getElementById('visualizadorContent');
-            const arquivo = curriculo.arquivoPDF;
-            
-            if (arquivo.startsWith('data:application/pdf')) {
-                content.innerHTML = `
-                    <div class="documento-visualizacao" id="documentoVisualizacao" style="width: 100%; max-width: 800px;">
-                        <iframe src="${arquivo}" style="width: 100%; height: 600px; border: none;"></iframe>
-                    </div>
-                `;
-            } else if (arquivo.startsWith('data:image/')) {
-                content.innerHTML = `
-                    <div class="documento-visualizacao" id="documentoVisualizacao" style="max-width: 800px;">
-                        <img src="${arquivo}" alt="Currículo de ${curriculo.nomeCandidato}" style="width: 100%; height: auto;">
-                    </div>
-                `;
+            if (login === 'ADMJOSE' && senha === 'ADMJOSE') {
+                document.getElementById('modalLogin').classList.remove('active');
+                document.getElementById('modalADM').classList.add('active');
+                document.getElementById('msgErro').style.display = 'none';
+                atualizarListaAdmin(); // Atualiza a lista de vagas no painel
+                mostrarNotificacao('✅ Login realizado com sucesso!');
             } else {
-                content.innerHTML = `
-                    <div class="documento-visualizacao" id="documentoVisualizacao" style="max-width: 800px;">
-                        <img src="${arquivo}" alt="Currículo de ${curriculo.nomeCandidato}" style="width: 100%; height: auto;">
-                    </div>
-                `;
-            }
-            
-            document.getElementById('zoomLevel').textContent = '100%';
-            abrirModal('modalVisualizador');
-        }
-
-        function chamarWhatsApp(numero, nome) {
-            const url = `https://wa.me/55${numero}?text=Olá ${encodeURIComponent(nome)}! Recebemos seu currículo e gostaríamos de conversar com você.`;
-            window.open(url, '_blank');
-        }
-
-        function fecharVisualizador() {
-            fecharModal('modalVisualizador');
-            curriculoAtual = null;
-            document.getElementById('visualizadorContent').innerHTML = '';
-        }
-
-        function alterarZoom(delta) {
-            zoomLevel = Math.max(50, Math.min(200, zoomLevel + delta));
-            aplicarZoom();
-        }
-
-        function resetZoom() {
-            zoomLevel = 100;
-            aplicarZoom();
-        }
-
-        function aplicarZoom() {
-            const doc = document.getElementById('documentoVisualizacao');
-            if (doc) {
-                doc.style.transform = `scale(${zoomLevel / 100})`;
-                document.getElementById('zoomLevel').textContent = zoomLevel + '%';
+                document.getElementById('msgErro').style.display = 'block';
+                document.getElementById('msgErro').textContent = '❌ Login ou senha incorretos!';
             }
         }
 
-        // ============ LOGIN ADM ============
-        document.getElementById('btnAdm').addEventListener('click', () => {
-            if (logadoADM) {
-                document.getElementById('tabsADM').classList.add('active');
-                document.getElementById('tabsEmpresa').classList.remove('active');
-                mudarPaginaAdmin('admin');
-            } else {
-                abrirModal('modalLoginADM');
-            }
-        });
+        function lancarVaga() {
+            const tipo = document.getElementById('tipoVaga').value;
+            const nome = document.getElementById('nomeVaga').value;
+            const empresa = document.getElementById('empresaVaga').value;
+            const valor = document.getElementById('valorVaga').value;
+            const horas = document.getElementById('horasVaga').value;
+            const whatsapp = document.getElementById('whatsappVaga').value;
 
-        document.getElementById('formLoginADM').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const login = document.getElementById('loginADM').value;
-            const senha = document.getElementById('senhaADM').value;
-            
-            if (login === 'adm2026' && senha === 'jose2026') {
-                logadoADM = true;
-                sessionStorage.setItem('logadoADM', 'true');
-                fecharModal('modalLoginADM');
-                document.getElementById('tabsADM').classList.add('active');
-                document.getElementById('tabsEmpresa').classList.remove('active');
-                this.reset();
-                document.getElementById('erroLoginADM').style.display = 'none';
-                mudarPaginaAdmin('admin');
-                mostrarToast('✅ Login ADM realizado!');
-            } else {
-                document.getElementById('erroLoginADM').style.display = 'block';
-            }
-        });
-
-        function logoutADM() {
-            logadoADM = false;
-            sessionStorage.removeItem('logadoADM');
-            document.getElementById('tabsADM').classList.remove('active');
-            mudarPaginaPublica();
-            mostrarToast('👋 Logout ADM realizado!');
-        }
-
-        // ============ LOGIN EMPRESA ============
-        document.getElementById('btnEmpresa').addEventListener('click', () => {
-            if (logadoEmpresa && empresaAtual) {
-                document.getElementById('tabsEmpresa').classList.add('active');
-                document.getElementById('tabsADM').classList.remove('active');
-                mudarPaginaEmpresa('painel');
-            } else {
-                abrirModal('modalLoginEmpresa');
-            }
-        });
-
-        document.getElementById('formLoginEmpresa').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const login = document.getElementById('loginEmpresa').value;
-            const senha = document.getElementById('senhaEmpresa').value;
-            
-            const empresa = empresas.find(emp => emp.login === login && emp.senha === senha);
-            
-            if (empresa) {
-                logadoEmpresa = true;
-                empresaAtual = empresa;
-                sessionStorage.setItem('logadoEmpresa', 'true');
-                sessionStorage.setItem('empresaAtual', JSON.stringify(empresa));
-                fecharModal('modalLoginEmpresa');
-                document.getElementById('tabsEmpresa').classList.add('active');
-                document.getElementById('tabsADM').classList.remove('active');
-                this.reset();
-                document.getElementById('erroLoginEmpresa').style.display = 'none';
-                mudarPaginaEmpresa('painel');
-                mostrarToast('✅ Login empresa realizado!');
-            } else {
-                document.getElementById('erroLoginEmpresa').style.display = 'block';
-            }
-        });
-
-        function logoutEmpresa() {
-            logadoEmpresa = false;
-            empresaAtual = null;
-            sessionStorage.removeItem('logadoEmpresa');
-            sessionStorage.removeItem('empresaAtual');
-            document.getElementById('tabsEmpresa').classList.remove('active');
-            mudarPaginaPublica();
-            mostrarToast('👋 Logout empresa realizado!');
-        }
-
-        // ============ NAVEGAÇÃO ============
-        function mudarPaginaPublica() {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('page-vagas').classList.add('active');
-            document.getElementById('searchInput').value = '';
-            carregarVagasPublicas();
-        }
-
-        function mudarPaginaAdmin(pagina) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('#tabsADM .tab').forEach(t => t.classList.remove('active'));
-            
-            if (pagina === 'vagas') {
-                document.getElementById('page-vagas').classList.add('active');
-                document.querySelector('#tabsADM .tab:nth-child(1)').classList.add('active');
-                carregarVagasPublicas();
-            } else if (pagina === 'admin') {
-                document.getElementById('page-admin').classList.add('active');
-                document.querySelector('#tabsADM .tab:nth-child(2)').classList.add('active');
-                atualizarListaVagasAdmin();
-            } else if (pagina === 'empresas') {
-                document.getElementById('page-empresas').classList.add('active');
-                document.querySelector('#tabsADM .tab:nth-child(3)').classList.add('active');
-                atualizarListaEmpresas();
-            }
-        }
-
-        function mudarPaginaEmpresa(pagina) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('#tabsEmpresa .tab').forEach(t => t.classList.remove('active'));
-            
-            if (pagina === 'vagas') {
-                document.getElementById('page-vagas').classList.add('active');
-                document.querySelector('#tabsEmpresa .tab:nth-child(1)').classList.add('active');
-                carregarVagasPublicas();
-            } else if (pagina === 'painel') {
-                document.getElementById('page-painel-empresa').classList.add('active');
-                document.querySelector('#tabsEmpresa .tab:nth-child(2)').classList.add('active');
-                atualizarVagasEmpresa();
-            }
-        }
-
-        // ============ UPLOAD DE FOTOS ============
-        document.getElementById('uploadFoto').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    fotoBase64 = e.target.result;
-                    document.getElementById('previewFoto').innerHTML = `<img src="${fotoBase64}" alt="Preview">`;
-                    document.getElementById('btnRemoverFoto').style.display = 'inline-block';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        function removerFoto() {
-            fotoBase64 = '';
-            document.getElementById('previewFoto').innerHTML = '<i class="fas fa-building"></i>';
-            document.getElementById('btnRemoverFoto').style.display = 'none';
-            document.getElementById('uploadFoto').value = '';
-        }
-
-        document.getElementById('uploadFotoEmpresa').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    fotoBase64Empresa = e.target.result;
-                    document.getElementById('previewFotoEmpresa').innerHTML = `<img src="${fotoBase64Empresa}" alt="Preview">`;
-                    document.getElementById('btnRemoverFotoEmpresa').style.display = 'inline-block';
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        function removerFotoEmpresa() {
-            fotoBase64Empresa = '';
-            document.getElementById('previewFotoEmpresa').innerHTML = '<i class="fas fa-building"></i>';
-            document.getElementById('btnRemoverFotoEmpresa').style.display = 'none';
-            document.getElementById('uploadFotoEmpresa').value = '';
-        }
-
-        // ============ CADASTRO DE EMPRESAS (ADM) ============
-        document.getElementById('formEmpresa').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const novaEmpresa = {
-                id: Date.now(),
-                nome: document.getElementById('nomeEmpresa').value.trim(),
-                login: document.getElementById('loginEmpresaCadastro').value.trim(),
-                senha: document.getElementById('senhaEmpresaCadastro').value.trim(),
-                whatsapp: document.getElementById('whatsappEmpresa').value.trim(),
-                dataCadastro: new Date().toLocaleDateString('pt-BR')
-            };
-
-            if (!novaEmpresa.nome || !novaEmpresa.login || !novaEmpresa.senha) {
-                mostrarToast('⚠️ Preencha todos os campos obrigatórios!', 'error');
+            if (!nome || !empresa || !valor || !horas || !whatsapp) {
+                alert('⚠️ Por favor, preencha todos os campos!');
                 return;
             }
 
-            if (empresas.find(emp => emp.login === novaEmpresa.login)) {
-                mostrarToast('⚠️ Este login já está em uso!', 'error');
-                return;
-            }
-
-            empresas.push(novaEmpresa);
-            localStorage.setItem('empresas', JSON.stringify(empresas));
-            this.reset();
-            atualizarListaEmpresas();
-            mostrarToast('✅ Empresa cadastrada com sucesso!');
-        });
-
-        function atualizarListaEmpresas() {
-            const container = document.getElementById('empresasList');
-            if (empresas.length === 0) {
-                container.innerHTML = '<p style="text-align:center;color:#999;padding:30px;">📋 Nenhuma empresa cadastrada</p>';
-                return;
-            }
-
-            container.innerHTML = empresas.map(emp => `
-                <div class="empresa-cadastrada-item">
-                    <h4>🏢 ${emp.nome}</h4>
-                    <p><strong>Login:</strong> ${emp.login}</p>
-                    <p><strong>WhatsApp:</strong> ${emp.whatsapp || 'Não informado'}</p>
-                    <p><strong>Cadastrado em:</strong> ${emp.dataCadastro}</p>
-                    <button class="btn-excluir" onclick="excluirEmpresa(${emp.id})">
-                        <i class="fas fa-trash"></i> Excluir
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        function excluirEmpresa(id) {
-            if (confirm('Tem certeza que deseja excluir esta empresa?')) {
-                empresas = empresas.filter(emp => emp.id !== id);
-                localStorage.setItem('empresas', JSON.stringify(empresas));
-                atualizarListaEmpresas();
-                mostrarToast('🗑️ Empresa excluída!');
-            }
-        }
-
-        // ============ CADASTRO DE VAGAS ============
-        document.getElementById('formVaga').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const novaVaga = {
-                id: Date.now(),
-                foto: fotoBase64,
-                empresa: document.getElementById('empresa').value.trim(),
-                whatsapp: document.getElementById('whatsapp').value.trim(),
-                titulo: document.getElementById('titulo').value.trim(),
-                descricao: document.getElementById('descricao').value.trim(),
-                localizacao: document.getElementById('localizacao').value.trim(),
-                tipo: document.getElementById('tipo').value,
-                data: new Date().toLocaleDateString('pt-BR'),
-                criadoPor: 'ADM'
-            };
-
-            if (!novaVaga.empresa || !novaVaga.whatsapp || !novaVaga.titulo || !novaVaga.descricao) {
-                mostrarToast('⚠️ Preencha todos os campos obrigatórios!', 'error');
-                return;
-            }
-
-            vagas.unshift(novaVaga);
-            localStorage.setItem('vagas', JSON.stringify(vagas));
-            this.reset();
-            removerFoto();
-            atualizarListaVagasAdmin();
-            carregarVagasPublicas();
-            mostrarToast('✅ Vaga cadastrada com sucesso!');
-        });
-
-        document.getElementById('formVagaEmpresa').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            if (!empresaAtual) {
-                mostrarToast('⚠️ Erro: Empresa não identificada!', 'error');
-                return;
-            }
-
-            const novaVaga = {
-                id: Date.now(),
-                foto: fotoBase64Empresa,
-                empresa: empresaAtual.nome,
-                whatsapp: empresaAtual.whatsapp || '',
-                titulo: document.getElementById('tituloEmpresa').value.trim(),
-                descricao: document.getElementById('descricaoEmpresa').value.trim(),
-                localizacao: document.getElementById('localizacaoEmpresa').value.trim(),
-                tipo: document.getElementById('tipoEmpresa').value,
-                data: new Date().toLocaleDateString('pt-BR'),
-                criadoPor: empresaAtual.login,
-                empresaId: empresaAtual.id
-            };
-
-            if (!novaVaga.titulo || !novaVaga.descricao) {
-                mostrarToast('⚠️ Preencha todos os campos obrigatórios!', 'error');
-                return;
-            }
-
-            vagas.unshift(novaVaga);
-            localStorage.setItem('vagas', JSON.stringify(vagas));
-            this.reset();
-            removerFotoEmpresa();
-            atualizarVagasEmpresa();
-            carregarVagasPublicas();
-            mostrarToast('✅ Vaga cadastrada com sucesso!');
-        });
-
-        // ============ EXCLUIR VAGA ============
-        function excluirVaga(id) {
-            if (confirm('Tem certeza que deseja excluir esta vaga?')) {
-                vagas = vagas.filter(v => v.id !== id);
-                localStorage.setItem('vagas', JSON.stringify(vagas));
-                atualizarListaVagasAdmin();
-                atualizarVagasEmpresa();
-                carregarVagasPublicas();
-                mostrarToast('🗑️ Vaga excluída!');
-            }
-        }
-
-        function excluirVagaEmpresa(id) {
-            if (confirm('Tem certeza que deseja excluir esta vaga?')) {
-                vagas = vagas.filter(v => v.id !== id);
-                localStorage.setItem('vagas', JSON.stringify(vagas));
-                atualizarVagasEmpresa();
-                carregarVagasPublicas();
-                mostrarToast('🗑️ Vaga excluída!');
-            }
-        }
-
-        // ============ LISTAR VAGAS ============
-        function carregarVagasPublicas(filtro = '') {
-            const container = document.getElementById('vagasContainer');
-            const noResults = document.getElementById('noResults');
-            
-            const vagasFiltradas = vagas.filter(vaga => {
-                if (!filtro) return true;
-                const searchTerm = filtro.toLowerCase();
-                return vaga.empresa.toLowerCase().includes(searchTerm) ||
-                       vaga.titulo.toLowerCase().includes(searchTerm) ||
-                       vaga.descricao.toLowerCase().includes(searchTerm) ||
-                       (vaga.localizacao && vaga.localizacao.toLowerCase().includes(searchTerm));
+            vagas[tipo].push({
+                nome: nome,
+                empresa: empresa,
+                valor: parseFloat(valor).toFixed(2),
+                horas: horas,
+                whatsapp: whatsapp
             });
+
+            salvarDados();
+            atualizarTodasListas();
+            atualizarListaAdmin();
             
-            if (vagasFiltradas.length === 0) {
-                container.innerHTML = '';
-                noResults.style.display = 'block';
-                return;
-            }
-            
-            noResults.style.display = 'none';
-            
-            container.innerHTML = vagasFiltradas.map((vaga, index) => `
-                <div class="vaga-card" style="animation-delay: ${index * 0.1}s">
-                    <div class="vaga-header">
-                        <div class="empresa-avatar">
-                            ${vaga.foto ? `<img src="${vaga.foto}" alt="${vaga.empresa}">` : vaga.empresa.charAt(0).toUpperCase()}
-                        </div>
-                        <div class="empresa-info">
-                            <h3>${vaga.empresa}</h3>
-                        </div>
-                    </div>
-                    
-                    <div class="vaga-titulo">${vaga.titulo}</div>
-                    <div class="vaga-descricao">${vaga.descricao}</div>
-                    
-                    <div class="vaga-tags">
-                        ${vaga.localizacao ? `<span class="tag tag-local"><i class="fas fa-map-marker-alt"></i> ${vaga.localizacao}</span>` : ''}
-                        <span class="tag tag-tipo"><i class="fas fa-file-contract"></i> ${vaga.tipo || 'CLT'}</span>
-                    </div>
-                    
-                    <a href="https://wa.me/55${vaga.whatsapp.replace(/\D/g, '')}?text=Olá! Tenho interesse na vaga de ${encodeURIComponent(vaga.titulo)}" 
-                       class="btn-whatsapp" target="_blank">
-                        <i class="fab fa-whatsapp"></i> Candidatar-se via WhatsApp
-                    </a>
-                    
-                    <button class="btn-curriculo" onclick="abrirEnvioCurriculo(${vaga.id})">
-                        <i class="fas fa-file-pdf"></i> Enviar Currículo
-                    </button>
-                </div>
-            `).join('');
+            // Limpar campos
+            document.getElementById('nomeVaga').value = '';
+            document.getElementById('empresaVaga').value = '';
+            document.getElementById('valorVaga').value = '';
+            document.getElementById('horasVaga').value = '';
+            document.getElementById('whatsappVaga').value = '';
+
+            mostrarNotificacao('✅ Vaga lançada com sucesso!');
         }
 
-        function atualizarListaVagasAdmin() {
-            const container = document.getElementById('vagasAdminList');
-            if (vagas.length === 0) {
-                container.innerHTML = '<p style="text-align:center;color:#999;padding:30px;">📋 Nenhuma vaga cadastrada</p>';
-                return;
-            }
-
-            container.innerHTML = vagas.map(vaga => `
-                <div class="admin-vaga-item">
-                    <div class="admin-vaga-foto">
-                        ${vaga.foto ? `<img src="${vaga.foto}" alt="${vaga.empresa}">` : '<i class="fas fa-building" style="font-size:30px;color:#ccc;"></i>'}
-                    </div>
-                    <div class="admin-vaga-info">
-                        <h4>📌 ${vaga.titulo}</h4>
-                        <p><strong>🏢 Empresa:</strong> ${vaga.empresa}</p>
-                        <p><strong>📱 WhatsApp:</strong> ${vaga.whatsapp}</p>
-                        <p><strong>📍 Local:</strong> ${vaga.localizacao || 'Não informado'}</p>
-                        <p><strong>📄 Tipo:</strong> ${vaga.tipo}</p>
-                        <p><strong>📅 Data:</strong> ${vaga.data}</p>
-                        <button class="btn-excluir" onclick="excluirVaga(${vaga.id})">
-                            <i class="fas fa-trash"></i> Excluir
-                        </button>
-                        <button class="btn-ver-curriculos" onclick="verCurriculos(${vaga.id})">
-                            <i class="fas fa-folder-open"></i> Currículos (${contarCurriculos(vaga.id)})
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function atualizarVagasEmpresa() {
-            if (!empresaAtual) return;
-            
-            const container = document.getElementById('vagasEmpresaList');
-            const minhasVagas = vagas.filter(v => v.empresaId === empresaAtual.id);
-            
-            if (minhasVagas.length === 0) {
-                container.innerHTML = '<p style="text-align:center;color:#999;padding:30px;">📋 Nenhuma vaga cadastrada</p>';
-                return;
-            }
-
-            container.innerHTML = minhasVagas.map(vaga => `
-                <div class="admin-vaga-item">
-                    <div class="admin-vaga-foto">
-                        ${vaga.foto ? `<img src="${vaga.foto}" alt="${vaga.empresa}">` : '<i class="fas fa-building" style="font-size:30px;color:#ccc;"></i>'}
-                    </div>
-                    <div class="admin-vaga-info">
-                        <h4>📌 ${vaga.titulo}</h4>
-                        <p><strong>📍 Local:</strong> ${vaga.localizacao || 'Não informado'}</p>
-                        <p><strong>📄 Tipo:</strong> ${vaga.tipo}</p>
-                        <p><strong>📅 Data:</strong> ${vaga.data}</p>
-                        <button class="btn-excluir" onclick="excluirVagaEmpresa(${vaga.id})">
-                            <i class="fas fa-trash"></i> Excluir
-                        </button>
-                        <button class="btn-ver-curriculos" onclick="verCurriculos(${vaga.id})">
-                            <i class="fas fa-folder-open"></i> Currículos (${contarCurriculos(vaga.id)})
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // ============ SISTEMA DE CURRÍCULOS ============
-        function abrirEnvioCurriculo(vagaId) {
-            document.getElementById('vagaIdCurriculo').value = vagaId;
-            abrirModal('modalCurriculo');
-        }
-
-        document.getElementById('formCurriculo').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const file = document.getElementById('arquivoCurriculo').files[0];
-            if (!file) {
-                mostrarToast('⚠️ Selecione um arquivo!', 'error');
-                return;
-            }
-
-            const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
-            if (!allowedTypes.includes(file.type)) {
-                mostrarToast('⚠️ Apenas PDF e imagens são aceitos!', 'error');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const novoCurriculo = {
-                    id: Date.now(),
-                    vagaId: parseInt(document.getElementById('vagaIdCurriculo').value),
-                    nomeCandidato: document.getElementById('nomeCandidato').value.trim(),
-                    whatsappCandidato: document.getElementById('whatsappCandidato').value.trim(),
-                    emailCandidato: document.getElementById('emailCandidato').value.trim(),
-                    arquivoPDF: e.target.result,
-                    nomeArquivo: file.name,
-                    tipoArquivo: file.type,
-                    dataEnvio: new Date().toLocaleDateString('pt-BR'),
-                    horaEnvio: new Date().toLocaleTimeString('pt-BR')
-                };
-
-                curriculos.push(novoCurriculo);
-                localStorage.setItem('curriculos', JSON.stringify(curriculos));
-                
-                document.getElementById('formCurriculo').reset();
-                fecharModal('modalCurriculo');
-                mostrarToast('✅ Currículo enviado com sucesso!');
-            };
-            reader.readAsDataURL(file);
-        });
-
-        function contarCurriculos(vagaId) {
-            return curriculos.filter(c => c.vagaId === vagaId).length;
-        }
-
-        function verCurriculos(vagaId) {
-            const container = document.getElementById('listaCurriculos');
-            const curriculosVaga = curriculos.filter(c => c.vagaId === vagaId);
-            
-            if (curriculosVaga.length === 0) {
-                container.innerHTML = '<p style="text-align:center;color:#999;padding:20px;">📋 Nenhum currículo recebido</p>';
-            } else {
-                container.innerHTML = `
-                    <div style="margin-bottom: 15px; text-align: center; color: #666;">
-                        <strong>${curriculosVaga.length} currículo(s) recebido(s)</strong>
-                    </div>
-                    ${curriculosVaga.map(c => `
-                        <div class="curriculo-item">
-                            <div class="curriculo-info">
-                                <strong>👤 ${c.nomeCandidato}</strong>
-                                <small>📱 WhatsApp: ${c.whatsappCandidato}</small>
-                                ${c.emailCandidato ? `<small>📧 Email: ${c.emailCandidato}</small>` : ''}
-                                <small>📄 Arquivo: ${c.nomeArquivo}</small>
-                                <small>📅 Enviado em: ${c.dataEnvio} às ${c.horaEnvio}</small>
-                            </div>
-                            <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-                                <button class="btn-visualizar" onclick="abrirVisualizadorComDados(${c.id})">
-                                    <i class="fas fa-eye"></i> Visualizar
-                                </button>
-                                <button class="btn-download" onclick="baixarArquivo(${c.id})">
-                                    <i class="fas fa-download"></i> Baixar
-                                </button>
-                            </div>
-                        </div>
-                    `).join('')}
-                `;
-            }
-            
-            abrirModal('modalVerCurriculos');
-        }
-
-        function abrirVisualizadorComDados(curriculoId) {
-            const curriculo = curriculos.find(c => c.id === curriculoId);
-            if (curriculo) {
-                fecharModal('modalVerCurriculos');
-                setTimeout(() => abrirVisualizador(curriculo), 300);
-            }
-        }
-
-        function baixarArquivo(curriculoId) {
-            const curriculo = curriculos.find(c => c.id === curriculoId);
-            if (curriculo) {
-                const link = document.createElement('a');
-                link.href = curriculo.arquivoPDF;
-                link.download = curriculo.nomeArquivo;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                mostrarToast('📥 Download iniciado!');
-            }
-        }
-
-        // ============ BUSCA ============
-        document.getElementById('searchInput').addEventListener('input', (e) => {
-            carregarVagasPublicas(e.target.value);
-        });
-
-        // ============ FECHAR MODAIS AO CLICAR FORA ============
-        document.querySelectorAll('.modal-overlay').forEach(modal => {
+        // Fechar modais ao clicar fora
+        document.querySelectorAll('.modal').forEach(modal => {
             modal.addEventListener('click', function(e) {
                 if (e.target === this) {
-                    if (this.id === 'modalVisualizador') {
-                        fecharVisualizador();
-                    } else {
-                        this.classList.remove('active');
-                    }
+                    this.classList.remove('active');
                 }
             });
         });
 
-        // ============ TECLA ESC PARA FECHAR ============
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                if (document.getElementById('modalVisualizador').classList.contains('active')) {
-                    fecharVisualizador();
-                }
-            }
+        // Salvar dados quando o usuário sair da página
+        window.addEventListener('beforeunload', function() {
+            localStorage.setItem('vagasSistema', JSON.stringify(vagas));
         });
 
-        // ============ INICIALIZAÇÃO ============
-        carregarVagasPublicas();
-        if (logadoADM) {
-            document.getElementById('tabsADM').classList.add('active');
-        }
-        if (logadoEmpresa && empresaAtual) {
-            document.getElementById('tabsEmpresa').classList.add('active');
-        }
+        // Salvar dados periodicamente (backup automático a cada 30 segundos)
+        setInterval(() => {
+            localStorage.setItem('vagasSistema', JSON.stringify(vagas));
+        }, 30000);
+
+        // Inicializar
+        carregarDados();
     </script>
 </body>
 </html>
